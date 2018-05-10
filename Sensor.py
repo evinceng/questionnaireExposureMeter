@@ -26,7 +26,9 @@ class Sensor():
         self.halt = 0
         self.__receivedEventCounter = 0
         self.__initDBConnection()
-        
+    
+    def setSessionStartTime(self, startTime):
+        self.sessionStartTime = startTime
     
     def listenSocketFromDotNET(self):
         self.halt = 0
@@ -37,8 +39,6 @@ class Sensor():
                 # Wait for a connection
                 print >>sys.stderr, "Server socket for incomming ", self.configSectionName, " data: waiting for a connection"
                 connection, client_address = self.sock.accept()
-                
-                self.sessionStartTime = datetime.now()
                 
 #                print "sessionstarttime is ############"
 #                print self.sessionStartTime

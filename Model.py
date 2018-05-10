@@ -8,6 +8,7 @@ import ThreadedSensor
 import bottle
 import Tobii
 import config
+from datetime import datetime
 
 class Model():
     """ Class including the main operations of the app.
@@ -21,8 +22,8 @@ class Model():
 
     def initTobiiEyeTracker(self):
         __tobiiConfigSection = "TOBII"
-        tobiiSensor = Tobii.Tobii(__tobiiConfigSection)
-        self.tobiiEyeTracker = ThreadedSensor.ThreadedSensor(tobiiSensor, __tobiiConfigSection)
+        self.tobiiSensor = Tobii.Tobii(__tobiiConfigSection)
+        self.tobiiEyeTracker = ThreadedSensor.ThreadedSensor(self.tobiiSensor, __tobiiConfigSection)
         
         __tobiiEyeTrackerServerHostRoute = config.getConfig().get(__tobiiConfigSection, "HostRoute")
         
@@ -30,6 +31,9 @@ class Model():
         bottle.route(__tobiiEyeTrackerServerHostRoute)(self.tobiiEyeTracker.sensor.respondTracker)
         
     def start(self):
+        startTime = datetime.now()
+        #start time should be set before starting listening the port
+        self.tobiiSensor.setSessionStartTime(startTime)
         self.tobiiEyeTracker.startListening()
     
     def stop(self):
