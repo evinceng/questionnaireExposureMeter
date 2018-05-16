@@ -22,15 +22,25 @@ class Sensor():
     #sensorMessage.append(json.loads('{"tobiiEyeTracker":{"timeStamp":"30.12.2015 14:06:20.2442","leftPos":{"x":"-0,258863875351471","y":"11,5149518687205","z":"60,9095247803002"},"rightPos":{"x":"5,88168331298095","y":"11,2362714331765","z":"61,0613078775579"},"leftGaze":{"x":"2,38144559635971","y":"16,7283881083418","z":"4,40281135417063"},"rightGaze":{"x":"-3,55454772939922","y":"17,2529816540119","z":"4,59374825056375"},"leftPupilDiameter":"2,642151","rightPupilDiameter":"2,673187"}}'))
     
     def __init__(self, configSectionName):
+        """
+        Initilazes the necessary parameters and establishes DB connection
+        """
         self.configSectionName = configSectionName
         self.halt = 0
         self.__receivedEventCounter = 0
         self.__initDBConnection()
     
     def setSessionStartTime(self, startTime):
+        """
+        The start time of the experiment is set when the start button is pressed
+        """
         self.sessionStartTime = startTime
     
     def listenSocketFromDotNET(self):
+        """
+        The socket is listened for input, the input is parsed if necessary and
+        shaped for db and data is written to both a logfile and DB
+        """
         self.halt = 0
         self.sock = self.__initSocket()
         
@@ -87,6 +97,9 @@ class Sensor():
         print "Leaving listening method of ", self.configSectionName
     
     def respondTracker(self):
+        """
+        respond the web browser when the webpage is opened or refresh button is pressed
+        """
         response.headers["Content-type"] = "application/json"
         data = {}
         
@@ -108,6 +121,9 @@ class Sensor():
         sock.close()
         
     def __initSocket(self):
+        """
+        The server socket is initialized
+        """
         # Create a TCP/IP socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # Bind the socket to the port
@@ -119,6 +135,9 @@ class Sensor():
         return sock
     
     def __initDBConnection(self):
+        """
+        Initializes mongoDB connection
+        """
         dbSectionName = "MONGODB"
         __host = config.getConfig().get(dbSectionName, "Host")
         __port = config.getConfig().getint(dbSectionName, "Port")
@@ -134,7 +153,7 @@ class Sensor():
          
     def __writeToFile(self, data, mode):
         """ 
-        Opens the file named sectionName+LocalLoggingFileName in the specified @mode and writes the
+        Opens the file named logFileName in the specified @mode and writes the
         @data to it and closes the file.
     
         @param data (string): The data that will be written to the file
@@ -149,6 +168,9 @@ class Sensor():
             logFile.close()
             
     def __writeToDB(self, data):
+        """
+        Shapes the data for DB  and writes the shaped data combined with user information to the DB
+        """
         #should be implemented for each sensor separately
         shapedDataDict = self.shapeDataForDB(data)
         
@@ -163,15 +185,26 @@ class Sensor():
         self.sensorCollection.insert_one(concatedDict)
             
     def parseData(self, data):
+        """
+        Parses the data coming from the sensor
+        If necessary each sensor should extend this class and implement this method separately
+        """
         if config.getConfig().getboolean(self.configSectionName, "IsDataHasToBeParsed"):
             raise NotImplementedError("It seems that the data has to be parsed. Please override and implement parseData method!")
         else:
             raise NotImplementedError("It is declared that the data don\'t need to be parsed. Please check config file!")
             
     def shapeDataForDB(self, data):
+        """
+        Shapes the data coming form the sensor for DB
+        Each sensor should extend this class and implement this method separately
+        """
         raise NotImplementedError("The prepareDataForDB method should be overridden by every new sensor class inheriting Sensor class!")
         
     def createUserPropsDict(self):
+        """
+        Creates the user info dictionary
+        """
         userPropsArr = []
         userPropsArr.append(("userName",sys.argv[1]))
         userPropsArr.append(("sessionStartTime", self.sessionStartTime))

@@ -16,11 +16,17 @@ class Model():
     """
     
     def __init__(self):
+        """
+        Initializes serverhost ip and port numbers & the sensors
+        """
         self.serverHostIP = config.getConfig().get("SERVER", "IP")
         self.serverHostPort = config.getConfig().getint("SERVER", "Port")
         self.initTobiiEyeTracker()
 
     def initTobiiEyeTracker(self):
+        """
+        Initializes TOBII eyetracker sensor and starts the bottle application        
+        """
         __tobiiConfigSection = "TOBII"
         self.tobiiSensor = Tobii.Tobii(__tobiiConfigSection)
         self.tobiiEyeTracker = ThreadedSensor.ThreadedSensor(self.tobiiSensor, __tobiiConfigSection)
@@ -31,12 +37,18 @@ class Model():
         bottle.route(__tobiiEyeTrackerServerHostRoute)(self.tobiiEyeTracker.sensor.respondTracker)
         
     def start(self):
+        """
+        Session start time is set and the sensors are started for listening the ports
+        """
         startTime = datetime.now()
         #start time should be set before starting listening the port
         self.tobiiSensor.setSessionStartTime(startTime)
         self.tobiiEyeTracker.startListening()
     
     def stop(self):
+        """
+        Sensors are stopped to listening the ports
+        """
         self.tobiiEyeTracker.stopListening()
           
 #first benchmark commented out

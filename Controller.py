@@ -20,6 +20,10 @@ class Controller():
     """
 
     def __init__(self):
+        """
+        Initializes the bottle server, creates Model and View part of the MVC,
+        and binds the start and stop button
+        """
         self.initializeBottleServer()
         self.root = Tk.Tk()
         self.root.protocol("WM_DELETE_WINDOW", self.onClosing)
@@ -33,11 +37,17 @@ class Controller():
 #        self.view.mainPanel.progressbar["maximum"] = self.model.progressBarMaxVal
         
     def run(self):
+        """
+        starts the user interface
+        """
         self.root.title("MVC")
         self.root.deiconify()
         self.root.mainloop()
         
     def start(self,event):
+        """
+        Orginizes the start&stop buttons state and signals the model to start listening the sensors
+        """
         self.view.sidePanel.startButton.config(state="disabled")
         self.view.sidePanel.stopButton.config(state="normal")
         self.model.start()
@@ -45,6 +55,9 @@ class Controller():
 #        self.clearSlider()
         
     def stop(self,event):
+        """
+        Changes the start&stop buttons state and signals the model to stop listening the sensors
+        """
         self.view.sidePanel.startButton.config(state="normal")
         self.view.sidePanel.stopButton.config(state="disabled")
         #first benchmark commented out
@@ -52,6 +65,10 @@ class Controller():
         self.model.stop()
         
     def onClosing(self):
+        """
+        A message box is showed to the user before closing the window and model is signaled
+        to stop listening the sensors and bottle server is stooped and window is destroyed
+        """
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
             #if the button stop is already pushed don't call stop method again
             state = str(self.view.sidePanel.stopButton["state"])
@@ -61,6 +78,9 @@ class Controller():
             self.root.destroy()
             
     def initializeBottleServer(self):
+        """
+        Starts the bottle server
+        """
         app = bottle.app()
         app.install(EnableCors.EnableCors())
         

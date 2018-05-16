@@ -8,6 +8,9 @@ Created on Wed Apr 11 15:24:01 2018
 from bottle import ServerAdapter
 
 class StoppableWSGIRefServer(ServerAdapter):
+    """
+    Class implemented for providing the server to be stopped when the app is closed
+    """
     server = None
 
     def run(self, handler):
