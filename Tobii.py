@@ -13,6 +13,9 @@ import flattenDict as ft
 from datetime import datetime
 
 class Tobii(Sensor.Sensor):
+    """
+    Specific class for tobi eye  tracker sensor, provides shapeDataForDB implementation
+    """
     
     def shapeDataForDB(self, data):
         omitBeginLen = len('{"tobiiEyeTracker":')

@@ -16,6 +16,11 @@ from dateutil.tz import tzlocal
 from collections import OrderedDict
 
 class Sensor():
+    """
+    Base class for each sensor, If necessary e new sensor that is going to be 
+    connected will extend this class and have its own implmentations 
+    for shapeDataforDB and parseData(if necessary)
+    """
     
     sensorMessage=[]
     #sensorMessage.append(json.loads('{"tobiiEyeTracker":{"timeStamp":"30.12.2015 14:06:20.2412","leftPos":{"x":"-0,228793755914194","y":"11,5027813555582","z":"60,912982163767"},"rightPos":{"x":"5,89524352818696","y":"11,2245013358383","z":"61,0730322352786"},"leftGaze":{"x":"3,15812377150551","y":"17,3247499470179","z":"4,61986983600664"},"rightGaze":{"x":"-2,49937069615642","y":"17,3932511520527","z":"4,64480229580618"},"leftPupilDiameter":"2,645874","rightPupilDiameter":"2,622345"}}'))
