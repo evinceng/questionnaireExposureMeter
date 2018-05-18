@@ -3,6 +3,8 @@
 Created on Wed Apr 04 13:13:48 2018
 
 @author: evin
+@brief: Class including the main data and their operations of the multimedia exposure meter app
+        (Model of MVC)
 """
 import ThreadedSensor
 import bottle
@@ -11,7 +13,7 @@ import config
 from datetime import datetime
 
 class Model():
-    """ Class including the main operations of the app.
+    """ Class including the main data and their operations of the multimedia exposure meter app
         (Model of MVC)
     """
     
@@ -22,7 +24,18 @@ class Model():
         self.serverHostIP = config.getConfig().get("SERVER", "IP")
         self.serverHostPort = config.getConfig().getint("SERVER", "Port")
         self.initTobiiEyeTracker()
-
+        ################################################################################
+        #initialize scheduler here by calling initScheduler method that will do the job
+        ################################################################################
+     
+    def initScheduler(self):
+        """
+        Create a Scheduler and ThreadedScheduler
+        (this will run the Sceheduler class in a thread like ThreadedSensor for tobii) 
+        class like in initTobiiEyeTracker method
+        """
+        pass
+    
     def initTobiiEyeTracker(self):
         """
         Initializes TOBII eyetracker sensor and starts the bottle application        
@@ -44,12 +57,19 @@ class Model():
         #start time should be set before starting listening the port
         self.tobiiSensor.setSessionStartTime(startTime)
         self.tobiiEyeTracker.startListening()
+        ################################################################################
+        #Start the scheduler here
+        ################################################################################
+        
     
     def stop(self):
         """
         Sensors are stopped to listening the ports
         """
         self.tobiiEyeTracker.stopListening()
+        ################################################################################
+        #Stop the scheduler here
+        ################################################################################
           
 #first benchmark commented out
 #    progressBarMaxVal = 2

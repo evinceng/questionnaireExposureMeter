@@ -3,10 +3,8 @@
 Created on Thu Apr 12 11:43:23 2018
 
 @author: evin
-"""
+@brief: Creates a configuration parser with provided inputs
 
-"""
-Creates a configuration parser with provided inputs
 """
 from ConfigParser import ConfigParser
 import os

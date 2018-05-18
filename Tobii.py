@@ -3,6 +3,7 @@
 Created on Wed Apr 25 12:50:15 2018
 
 @author: evin
+@brief: Specific class for tobi eye  tracker sensor, provides shapeDataForDB implementation
 """
 
 import Sensor

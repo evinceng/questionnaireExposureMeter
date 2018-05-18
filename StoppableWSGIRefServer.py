@@ -3,6 +3,7 @@
 Created on Wed Apr 11 15:24:01 2018
 
 @author: evin
+@brief: Class implemented for providing the server to be stopped when the app is closed
 """
 
 from bottle import ServerAdapter

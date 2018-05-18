@@ -3,6 +3,7 @@
 Created on Tue Apr 10 15:57:39 2018
 
 @author: evin
+@brief: Class provides the sensors having seperate threads running
 """
 
 import threading

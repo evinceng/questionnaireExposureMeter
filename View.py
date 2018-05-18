@@ -3,12 +3,14 @@
 Created on Wed Apr 04 13:12:21 2018
 
 @author: evin
+@brief: The user interface(GUI) of multimedia exposure meter app.
+        (View of MVC)
 """
 
 import Tkinter as Tk
 
 class View():
-    """ The user interface(GUI) of app.
+    """ The user interface(GUI) of multimedia exposure meter app.
         (View of MVC)
     """
     

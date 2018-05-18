@@ -3,13 +3,15 @@
 Created on Tue Apr 10 15:43:44 2018
 
 @author: evin
+@brief: Class in order to enable CORS - .JS getting data from another web address
+       sourced from: http://stackoverflow.com/questions/17262170/bottle-py-enabling-cors-for-jquery-ajax-requests
 """
 
 from bottle import response
 import bottle
 
 class EnableCors(object):
-    """In order to enable CORS - .JS getting data from another web address
+    """Class in order to enable CORS - .JS getting data from another web address
        sourced from: http://stackoverflow.com/questions/17262170/bottle-py-enabling-cors-for-jquery-ajax-requests
     """
     name = 'enable_cors'

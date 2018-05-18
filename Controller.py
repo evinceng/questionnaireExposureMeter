@@ -3,6 +3,8 @@
 Created on Wed Apr 04 13:13:48 2018
 
 @author: evin
+@brief: Class establishing communication between user interface(view) and model.
+       (Controller of MVC)
 """
 import Model
 import View

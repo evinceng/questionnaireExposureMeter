@@ -3,6 +3,7 @@
 Created on Wed May 09 13:33:44 2018
 
 @author: evin
+@brief: flattens the objects in the inputDict dictionary for better use in DB
 """
 
 from collections import OrderedDict

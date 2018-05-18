@@ -3,6 +3,9 @@
 Created on Tue Apr 10 16:05:35 2018
 
 @author: evin
+@brief: Base class for each sensor, If necessary e new sensor that is going to be 
+    connected will extend this class and have its own implmentations 
+    for shapeDataforDB and parseData(if necessary)
 """
 import json
 from bottle import response
