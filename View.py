@@ -17,9 +17,24 @@ class View():
     def __init__(self, master):
         self.frame = Tk.Frame(master)
         self.frame.pack(side=Tk.LEFT, fill=Tk.BOTH, expand=1)
-        #first benchmark commented out
-#        self.mainPanel = MainPanel(master)
+        self.mainPanel = MainPanel(master)
         self.sidePanel=SidePanel(master)
+
+class MainPanel():
+    """Class including visuals: entrys, labels, graphs, sliders etc.
+    
+    """
+    def __init__(self, root):
+        self.initUserNameFrame(root) 
+        
+    def initUserNameFrame(self, root):
+        self.userNameVar = Tk.StringVar()
+        self.frame4 = Tk.Frame(root)
+        self.frame4.pack(side=Tk.LEFT, fill=Tk.BOTH, expand=1)
+        self.userNameLabel = Tk.Label(self.frame4, text="User Name:")
+        self.userNameLabel.pack(side=Tk.LEFT)
+        self.userNameEntry = Tk.Entry(self.frame4, width=11, textvariable=self.userNameVar)
+        self.userNameEntry.pack(side=Tk.RIGHT)     
         
 #first benchmark commented out
 #class MainPanel():
@@ -44,7 +59,7 @@ class SidePanel():
     def __init__(self, root):
         self.frame3 = Tk.Frame(root)
         self.frame3.pack(side=Tk.RIGHT, fill=Tk.BOTH, expand=1)
-        self.startButton = Tk.Button(self.frame3, text="Start")
+        self.startButton = Tk.Button(self.frame3, text="Start", state="disabled")
         self.startButton.pack(side="top",fill=Tk.BOTH)
         self.stopButton = Tk.Button(self.frame3, text="Stop", state="disabled")
         self.stopButton.pack(side="top",fill=Tk.BOTH)

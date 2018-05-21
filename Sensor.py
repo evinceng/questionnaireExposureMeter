@@ -37,7 +37,13 @@ class Sensor():
         self.halt = 0
         self.__receivedEventCounter = 0
         self.__initDBConnection()
-    
+        
+    def setUserName(self, userName):
+        """
+        The userName is set when the start button is pressed
+        """
+        self.userName = userName
+        
     def setSessionStartTime(self, startTime):
         """
         The start time of the experiment is set when the start button is pressed
@@ -214,7 +220,7 @@ class Sensor():
         Creates the user info dictionary
         """
         userPropsArr = []
-        userPropsArr.append(("userName",sys.argv[1]))
+        userPropsArr.append(("userName",self.userName))
         userPropsArr.append(("sessionStartTime", self.sessionStartTime))
         
         local_tz_name = datetime.now(tzlocal()).tzname()

@@ -33,6 +33,7 @@ class Controller():
         self.view=View.View(self.root)
         self.view.sidePanel.startButton.bind("<Button>",self.start)
         self.view.sidePanel.stopButton.bind("<Button>",self.stop)
+        self.view.mainPanel.userNameVar.trace("w", self.updateStartButtonState)
         self.root.after(2000, self.root.focus_force)
         #first benchmark commented out
 #        self.view.mainPanel.slider.bind("<B1-Motion>", self.calculateVal)
@@ -50,9 +51,11 @@ class Controller():
         """
         Orginizes the start&stop buttons state and signals the model to start listening the sensors
         """
-        self.view.sidePanel.startButton.config(state="disabled")
-        self.view.sidePanel.stopButton.config(state="normal")
-        self.model.start()
+        #since bind does not work like command you have to check the state
+        if self.view.sidePanel.startButton["state"] == "normal":
+            self.view.sidePanel.startButton.config(state="disabled")
+            self.view.sidePanel.stopButton.config(state="normal")
+            self.model.start(self.view.mainPanel.userNameVar.get())
         #first benchmark commented out
 #        self.clearSlider()
         
@@ -60,11 +63,16 @@ class Controller():
         """
         Changes the start&stop buttons state and signals the model to stop listening the sensors
         """
-        self.view.sidePanel.startButton.config(state="normal")
-        self.view.sidePanel.stopButton.config(state="disabled")
-        #first benchmark commented out
-#        self.clearSlider()
-        self.model.stop()
+        #since bind does not work like command you have to check the state
+        if self.view.sidePanel.stopButton["state"] == "normal":
+            if self.view.mainPanel.userNameVar.get().strip():
+                self.view.sidePanel.startButton.config(state="normal")
+                
+            self.view.sidePanel.stopButton.config(state="disabled")
+            self.model.stop()
+            #first benchmark commented out
+#          self.clearSlider()
+        
         
     def onClosing(self):
         """
@@ -95,7 +103,15 @@ class Controller():
         self.appThread = threading.Thread(target=app.run, kwargs=dict(server=self.server))
         self.appThread.daemon = True
         self.appThread.start()
-        
+    
+    def updateStartButtonState(self, *_):
+        """
+        The start button is enabled if only username is provided
+        """
+        if (self.view.sidePanel.stopButton["state"] =="disabled" and self.view.mainPanel.userNameVar.get()):
+            self.view.sidePanel.startButton.config(state="normal")
+        else:
+            self.view.sidePanel.startButton.config(state="disabled")
 #first benchmark commented out
 #    def calculateVal(self,event):
 #        currentVal = self.view.mainPanel.slider.get()

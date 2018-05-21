@@ -49,12 +49,13 @@ class Model():
         print "Starting http server on http://",self.serverHostIP,':',self.serverHostPort, __tobiiEyeTrackerServerHostRoute
         bottle.route(__tobiiEyeTrackerServerHostRoute)(self.tobiiEyeTracker.sensor.respondTracker)
         
-    def start(self):
+    def start(self, userName):
         """
         Session start time is set and the sensors are started for listening the ports
         """
         startTime = datetime.now()
         #start time should be set before starting listening the port
+        self.tobiiSensor.setUserName(userName)
         self.tobiiSensor.setSessionStartTime(startTime)
         self.tobiiEyeTracker.startListening()
         ################################################################################
