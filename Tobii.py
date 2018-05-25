@@ -32,7 +32,7 @@ class Tobii(Sensor.Sensor):
         jsonData = json.loads(data, object_pairs_hook=OrderedDict)
         
         #flatten the data "leftPos":{"x":-0.228793755914194, to leftPos:x': -0.228793755914194
-        jsonData = ft.flatten_dict(jsonData)
+        jsonData = ft.flattenDict(jsonData)
         
         dateTime = jsonData["timeStamp"]
         

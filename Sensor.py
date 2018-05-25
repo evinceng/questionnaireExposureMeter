@@ -17,7 +17,8 @@ from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 from dateutil.tz import tzlocal
 from collections import OrderedDict
-
+from apscheduler.schedulers.background import BackgroundScheduler
+from Event import Event
 class Sensor():
     """
     Base class for each sensor, If necessary e new sensor that is going to be 
@@ -37,6 +38,7 @@ class Sensor():
         self.halt = 0
         self.__receivedEventCounter = 0
         self.__initDBConnection()
+        self.eyeGazeGreaterThanThreshold = Event()
         
     def setUserName(self, userName):
         """
@@ -49,7 +51,13 @@ class Sensor():
         The start time of the experiment is set when the start button is pressed
         """
         self.sessionStartTime = startTime
-    
+        
+    def setScheduler(self, scheduler):
+        """
+        The scheduler is set
+        """
+        self.scheduler = scheduler
+        
     def listenSocketFromDotNET(self):
         """
         The socket is listened for input, the input is parsed if necessary and
@@ -188,6 +196,11 @@ class Sensor():
         #should be implemented for each sensor separately
         shapedDataDict = self.shapeDataForDB(data)
         
+        ############ not good 
+        if abs(shapedDataDict["leftGaze:y"]) > 21:
+            self.eyeGazeGreaterThanThreshold(shapedDataDict["leftGaze:y"])
+            ###self.scheduler.scheduler.add_job(self.printByScheduler, args=[shapedDataDict["leftGaze:y"]])
+        
         #calculate relative time since the start of the session
         diff = shapedDataDict["timeStamp"] - self.userPropsDict["sessionStartTime"]
         self.userPropsDict["relativeTime"] = diff.total_seconds()
@@ -197,6 +210,11 @@ class Sensor():
         concatedDict = OrderedDict(list(self.userPropsDict.items()) + list(shapedDataDict.items()))
         #save to DB
         self.sensorCollection.insert_one(concatedDict)
+       
+    def printByScheduler(self, eyeGaze):
+        print "################################################################################"
+        print "Eyegaze greater than |12| that is ", eyeGaze
+        print "################################################################################"
             
     def parseData(self, data):
         """
@@ -222,6 +240,9 @@ class Sensor():
         userPropsArr = []
         userPropsArr.append(("userName",self.userName))
         userPropsArr.append(("sessionStartTime", self.sessionStartTime))
+
+#        from tzlocal import get_localzone
+#        local_tz_name = get_localzone()
         
         local_tz_name = datetime.now(tzlocal()).tzname()
         userPropsArr.append(("timeZoneName", local_tz_name))

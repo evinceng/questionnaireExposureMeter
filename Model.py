@@ -11,6 +11,7 @@ import bottle
 import Tobii
 import config
 from datetime import datetime
+import Scheduler
 
 class Model():
     """ Class including the main data and their operations of the multimedia exposure meter app
@@ -23,18 +24,22 @@ class Model():
         """
         self.serverHostIP = config.getConfig().get("SERVER", "IP")
         self.serverHostPort = config.getConfig().getint("SERVER", "Port")
-        self.initTobiiEyeTracker()
         ################################################################################
         #initialize scheduler here by calling initScheduler method that will do the job
         ################################################################################
+        self.initScheduler()
      
+        #initialize sensors----------------------------------------------------
+        self.initTobiiEyeTracker()
+        
+        
     def initScheduler(self):
         """
         Create a Scheduler and ThreadedScheduler
         (this will run the Sceheduler class in a thread like ThreadedSensor for tobii) 
         class like in initTobiiEyeTracker method
         """
-        pass
+        self.scheduler = Scheduler.Scheduler()
     
     def initTobiiEyeTracker(self):
         """
@@ -54,15 +59,19 @@ class Model():
         Session start time is set and the sensors are started for listening the ports
         """
         startTime = datetime.now()
-        #start time should be set before starting listening the port
-        self.tobiiSensor.setUserName(userName)
-        self.tobiiSensor.setSessionStartTime(startTime)
-        self.tobiiEyeTracker.startListening()
         ################################################################################
         #Start the scheduler here
         ################################################################################
+        self.scheduler.setSessionStartTimeAndActionUnits(startTime)
+        self.scheduler.startScheduler()
         
-    
+        #start time should be set before starting listening the port
+        self.tobiiSensor.setUserName(userName)
+        self.tobiiSensor.setSessionStartTime(startTime)
+        self.tobiiSensor.setScheduler(self.scheduler)
+        self.tobiiEyeTracker.startListening()
+        
+        
     def stop(self):
         """
         Sensors are stopped to listening the ports
@@ -71,7 +80,10 @@ class Model():
         ################################################################################
         #Stop the scheduler here
         ################################################################################
-          
+        self.scheduler.stopScheduler()
+        
+#    def assignEventHandlers(self):
+#        self.tobiiSensor.eyeGazeGreaterThanThreshold += self.scheduler.printText
 #first benchmark commented out
 #    progressBarMaxVal = 2
 #    """Progress Bar's max value """
