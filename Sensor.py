@@ -18,7 +18,10 @@ from pymongo.errors import ConnectionFailure
 from dateutil.tz import tzlocal
 from collections import OrderedDict
 from apscheduler.schedulers.background import BackgroundScheduler
-from Event import Event
+from pydispatch import dispatcher
+from EventType import EventType
+import traceback
+
 class Sensor():
     """
     Base class for each sensor, If necessary e new sensor that is going to be 
@@ -38,7 +41,6 @@ class Sensor():
         self.halt = 0
         self.__receivedEventCounter = 0
         self.__initDBConnection()
-        self.eyeGazeGreaterThanThreshold = Event()
         
     def setUserName(self, userName):
         """
@@ -65,13 +67,17 @@ class Sensor():
         """
         self.halt = 0
         self.sock = self.__initSocket()
-        
         try:
             while True:
                 # Wait for a connection
                 print >>sys.stderr, "Server socket for incomming ", self.configSectionName, " data: waiting for a connection"
                 connection, client_address = self.sock.accept()
                 
+                #SchedulerHelperMethods.popupWindow(self.masterFrame) # not happening
+                #dispatcher.send(signal=EventType.OpenQuestionnaireSignal, sender=EventType.OpenQuestionnaireSender, frame=self.masterFrame)
+                #dispatcher.send(signal=EventType.EyeGazeGTTSignal, sender=EventType.EyeGazeSender, eyeGaze=100000)
+                dispatcher.send(signal=EventType.PlayAudioSignal, sender=EventType.PlayAudioSender, fileName="media/second.mp3")
+#               
 #                print "sessionstarttime is ############"
 #                print self.sessionStartTime
 #                print "sessionstarttime is ###############"
@@ -105,6 +111,9 @@ class Sensor():
                                 break
                     except Exception as e:
                         print("something's wrong with %s. Exception is %s" % (client_address, e))
+                        print e.message
+                        print e.__class__.__name__
+                        traceback.print_exc(e)
                     finally:
                         # Clean up the connection
                         connection.shutdown(1)
@@ -196,25 +205,23 @@ class Sensor():
         #should be implemented for each sensor separately
         shapedDataDict = self.shapeDataForDB(data)
         
-        ############ not good 
-        if abs(shapedDataDict["leftGaze:y"]) > 21:
-            self.eyeGazeGreaterThanThreshold(shapedDataDict["leftGaze:y"])
-            ###self.scheduler.scheduler.add_job(self.printByScheduler, args=[shapedDataDict["leftGaze:y"]])
+        #if abs(shapedDataDict["leftGaze:y"]) > 21:
+            #dispatcher.send(signal=EventType.EyeGazeGTTSignal, sender=EventType.EyeGazeSender, eyeGaze=shapedDataDict["leftGaze:y"])
+            #dispatcher.send(signal=EventType.PlayAudioSignal, sender=EventType.PlayAudioSender, fileName="media/second.mp3")
         
         #calculate relative time since the start of the session
         diff = shapedDataDict["timeStamp"] - self.userPropsDict["sessionStartTime"]
         self.userPropsDict["relativeTime"] = diff.total_seconds()
         
         #add user nd session related info infront of the sensor info
-        #shapedDataDict.update(self.userPropsDict)
         concatedDict = OrderedDict(list(self.userPropsDict.items()) + list(shapedDataDict.items()))
         #save to DB
         self.sensorCollection.insert_one(concatedDict)
        
-    def printByScheduler(self, eyeGaze):
-        print "################################################################################"
-        print "Eyegaze greater than |12| that is ", eyeGaze
-        print "################################################################################"
+#    def printByScheduler(self, eyeGaze):
+#        print "################################################################################"
+#        print "Eyegaze greater than |12| that is ", eyeGaze
+#        print "################################################################################"
             
     def parseData(self, data):
         """
@@ -247,7 +254,7 @@ class Sensor():
         local_tz_name = datetime.now(tzlocal()).tzname()
         userPropsArr.append(("timeZoneName", local_tz_name))
         
-        userPropsArr.append(("sessionID", sys.argv[1] + str(self.sessionStartTime)))
+        userPropsArr.append(("sessionID", self.userName + str(self.sessionStartTime)))
         
         userPropsArr.append(("relativeTime", 0))
         

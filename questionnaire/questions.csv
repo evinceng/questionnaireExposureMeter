@@ -1,0 +1,5 @@
+Type;Question;Answer;Required
+textInput;What is your name;None;1
+radioButton;What is the color of your hair?;"(1, ""purple""), (2, ""green""), (3, ""blue""), (4, ""silver"")";1
+radioButton;Which of these brands do you prefer best?;"(-2, ""BMW""), (-1, ""Audi""), (0, ""VW""), (1, ""Kia""), (2, ""Honda"")";0
+scale;How happy are you currently?;None;0

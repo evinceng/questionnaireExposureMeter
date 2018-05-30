@@ -9,8 +9,10 @@ import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 #import mp3play
 import os, sys
-import Playmp3
+import SchedulerHelperMethods
 import logging
+from pydispatch import dispatcher
+from EventType import EventType
 
 class Scheduler:
     """
@@ -18,18 +20,23 @@ class Scheduler:
     or to be executed when certain events occur(eventActionUnit)
     """
     def __init__(self):
+        #self.masterFrame = masterFrame
         self.initLogger()
-        self.timeActionUnit = [{"time":1, "function":Playmp3.playSound, "args":[self.logger, "media/first.mp3"]},
-                               {"time":2, "function":self.printText, "args":[self.logger, "first"]},
-                               {"time":4, "function":Playmp3.playSound, "args":[self.logger, "media/second.mp3"]},
-              {"time":6, "function":self.printText, "args":[self.logger, "second"]}]
+        self.timeActionUnit = [
+                               {"time":1, "function":self.printText, "args":[self.logger, "first"]},
+                               {"time":3, "function":SchedulerHelperMethods.playSound, "args":[self.logger, "media/first.mp3"]},
+                               #{"time":5, "function":SchedulerHelperMethods.playSound, "args":[self.logger, "media/second.mp3"]},
+                               {"time":6, "function":self.printText, "args":[self.logger, "second"]}]
         
-#        eventActionUnit = [{"event":Event.PLAY_AUDIO, "function":playAudio, "args":["media/first.mp3"]},
-##              {"event":Event.OPEN_QUESTIONNAIRE, "function":openQuestionnaire, "args":["OpeningQuestionnaire"]},
-##              {"event":Event.CLOSE_QUESTIONNAIRE, "function":closeQuestionnaire, "args":["OpeningQuestionnaire"]}
-#              ]
-        self.scheduler = BackgroundScheduler()       
-    
+        #is connected at Controller.py, here is just note
+        self.questionnaireActionUnit = [{"eventSignal":EventType.OpenQuestionnaireSignal, "eventSender":EventType.OpenQuestionnaireSender }] #"function":Controller.openQuestionnaire
+
+        
+        self.eventActionUnit = [{"function":self.printLeftEyeGaze, "eventSignal":EventType.EyeGazeGTTSignal, "eventSender":EventType.EyeGazeSender },
+                                {"function":self.playSound, "eventSignal":EventType.PlayAudioSignal, "eventSender":EventType.PlayAudioSender },
+              ]
+        self.scheduler = BackgroundScheduler()
+        
     def initLogger(self):
         self.logger = logging.getLogger('apscheduler.executors.default')
         self.logger.setLevel(logging.INFO)  # DEBUG
@@ -37,11 +44,9 @@ class Scheduler:
     
     def addFileHandlerToLogger(self):
         APP_FOLDER = os.path.dirname(os.path.realpath(sys.argv[0]))
-        #fmt = logging.Formatter('%(levelname)s:%(name)s:%(message)s')
-        fileName = "Scheduler_" +  self.sessionStartTime.strftime('%Y-%m-%d_%H%M%S') + ".log"
+        fileName = "Scheduler_" +  self.sessionStartTime.strftime("%Y-%m-%d_%H%M%S") + ".log"
         filePath = os.path.join(APP_FOLDER, fileName)
-        fileHandler = logging.FileHandler(filePath, "w")#logging.StreamHandler()
-        #fileHandler.setFormatter(fmt)
+        fileHandler = logging.FileHandler(filePath, "w")
         self.logger.addHandler(fileHandler)
 
     def setSessionStartTimeAndActionUnits(self, startTime):
@@ -50,17 +55,22 @@ class Scheduler:
         to the scheduler when the start button is pressed
         """
         self.sessionStartTime = startTime
-        #this should be here so as to have sessioStartTime to naem the log file
+        #this should be here so as to have sessioStartTime to name the log file
         self.addFileHandlerToLogger()
         
         for action in self.timeActionUnit:
             actionTime = self.sessionStartTime + datetime.timedelta(seconds=action["time"])
             self.scheduler.add_job(action["function"], 'date', run_date=actionTime, args=action["args"])
         
+        for action in self.eventActionUnit:
+            #self.scheduler.add_job(action["function"], 'date', run_date=eventActionDummyTime, args=action["args"])
+            dispatcher.connect(action["function"], signal=action["eventSignal"], sender=action["eventSender"])
+        
         self.logger.info("Session start time is " + str(self.sessionStartTime))
         print "################################################################################"        
         print "Session start time is ", self.sessionStartTime
         print "################################################################################"
+        
         
     def startScheduler(self):
         """
@@ -74,13 +84,42 @@ class Scheduler:
         The scheduler is stopped
         """
         self.scheduler.shutdown() 
-        self.logger.info("Scheduler stopped at ", datetime.datetime.now())
+        self.logger.info("Scheduler stopped at " + str(datetime.datetime.now()))
+        handlers = self.logger.handlers[:]
+        for handler in handlers:
+            handler.close()
+            self.logger.removeHandler(handler)
+        logging.shutdown()
         
     def printText(self, logger, text):
         print "################################################################################"
         print "I am a text: ", text, datetime.datetime.now()
         print "################################################################################"
         logger.info("I am a text: %s %s" % (text, str(datetime.datetime.now())))
-
-
-
+        
+    def printLeftEyeGaze(self, sender, eyeGaze): #, 
+        try:
+            print "!!!!!!!!!!!!!!!!!!!!!!!!!!!", eyeGaze
+            #SchedulerHelperMethods.printLeftGaze(eyeGaze)
+            #self.scheduler.add_job("SchedulerHelperMethods:printLeftGaze", args=[eyeGaze]) #possible to give the function moduleName:functionName
+            self.scheduler.add_job(SchedulerHelperMethods.printLeftGaze, args=[eyeGaze])
+            print "@@@@@@@@@@@@@@"
+        except Exception,e:
+            print e.message
+            
+    def playSound(self, sender, fileName):
+        try:
+            print "!!!!!!!!!!!!!!!!!!!!!!!!!!!", fileName
+            SchedulerHelperMethods.playSound(self.logger, fileName)
+            #SchedulerHelperMethods.playSound(self.logger, fileName)
+        except Exception,e:
+            print e.message
+            
+    def openPopupWindow(self, sender, frame):
+        try:
+            print "pop up window @@@@@@@@@@"
+            SchedulerHelperMethods.popupWindow(frame)
+        except Exception,e:
+            print e.message
+            
+            
