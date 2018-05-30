@@ -73,10 +73,8 @@ class Sensor():
                 print >>sys.stderr, "Server socket for incomming ", self.configSectionName, " data: waiting for a connection"
                 connection, client_address = self.sock.accept()
                 
-                #SchedulerHelperMethods.popupWindow(self.masterFrame) # not happening
-                #dispatcher.send(signal=EventType.OpenQuestionnaireSignal, sender=EventType.OpenQuestionnaireSender, frame=self.masterFrame)
-                #dispatcher.send(signal=EventType.EyeGazeGTTSignal, sender=EventType.EyeGazeSender, eyeGaze=100000)
-                dispatcher.send(signal=EventType.PlayAudioSignal, sender=EventType.PlayAudioSender, fileName="media/second.mp3")
+                #dispatcher.send(EventType.EyeGazeGTTSignal, EventType.EyeGazeSender, 100000)
+                #dispatcher.send(EventType.PlayAudioSignal, EventType.PlayAudioSender, "media/second.mp3")
 #               
 #                print "sessionstarttime is ############"
 #                print self.sessionStartTime
@@ -124,7 +122,8 @@ class Sensor():
         finally: 
             self.sock.close()
             print "Finished server socket for incomming ", self.configSectionName, " data thread"
-                     
+            dispatcher.send(EventType.PlayAudioAndOpenQuestSignal, EventType.PlayAudioAndOpenQuestSender, "media/postQuestionnaire.ogg", "Post Questionnaire", "questionnaire/post_questions.csv")
+            
         print "Leaving listening method of ", self.configSectionName
     
     def respondTracker(self):
@@ -206,8 +205,7 @@ class Sensor():
         shapedDataDict = self.shapeDataForDB(data)
         
         #if abs(shapedDataDict["leftGaze:y"]) > 21:
-            #dispatcher.send(signal=EventType.EyeGazeGTTSignal, sender=EventType.EyeGazeSender, eyeGaze=shapedDataDict["leftGaze:y"])
-            #dispatcher.send(signal=EventType.PlayAudioSignal, sender=EventType.PlayAudioSender, fileName="media/second.mp3")
+            #dispatcher.send(EventType.PlayAudioSignal, EventType.PlayAudioSender, "media/second.mp3")
         
         #calculate relative time since the start of the session
         diff = shapedDataDict["timeStamp"] - self.userPropsDict["sessionStartTime"]

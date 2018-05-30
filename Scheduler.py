@@ -24,17 +24,21 @@ class Scheduler:
         self.initLogger()
         self.timeActionUnit = [
                                {"time":1, "function":self.printText, "args":[self.logger, "first"]},
-                               {"time":3, "function":SchedulerHelperMethods.playSound, "args":[self.logger, "media/first.mp3"]},
+                               #{"time":3, "function":SchedulerHelperMethods.playSound, "args":[self.logger, "media/first.mp3"]},
+                               {"time":2, "function":SchedulerHelperMethods.playSoundAndOpenQuestionnaire, "args":["media/preQuestionnaire.ogg", "Pre Questionnaire", "questionnaire/pre_questions.csv"]},
                                #{"time":5, "function":SchedulerHelperMethods.playSound, "args":[self.logger, "media/second.mp3"]},
                                {"time":6, "function":self.printText, "args":[self.logger, "second"]}]
         
-        #is connected at Controller.py, here is just note
-        self.questionnaireActionUnit = [{"eventSignal":EventType.OpenQuestionnaireSignal, "eventSender":EventType.OpenQuestionnaireSender }] #"function":Controller.openQuestionnaire
+        #here is just usage info, relevant send script whereever your conditions are endured
+        self.questionnaireActionUnit = [{"example":'dispatcher.send(EventType.PlayAudioAndOpenQuestSignal, EventType.PlayAudioAndOpenQuestSender, "media/postQuestionnaire.ogg", "Post Questionnaire", "questionnaire/post_questions.csv")',
+                                         "example2":'dispatcher.send(EventType.OpenQuestSignal, EventType.OpenQuestSender, "Pre Questionnaire", "questionnaire/pre_questions.csv")'}] 
 
         
-        self.eventActionUnit = [{"function":self.printLeftEyeGaze, "eventSignal":EventType.EyeGazeGTTSignal, "eventSender":EventType.EyeGazeSender },
-                                {"function":self.playSound, "eventSignal":EventType.PlayAudioSignal, "eventSender":EventType.PlayAudioSender },
-              ]
+        self.eventActionUnit = [{"function":SchedulerHelperMethods.printMessege, "eventSignal":EventType.PrintMessageSignal, "eventSender":EventType.PrintMessageSender },
+                                #{"function":self.printLeftEyeGaze, "eventSignal":EventType.EyeGazeGTTSignal, "eventSender":EventType.EyeGazeSender },
+                                #{"function":self.playSound, "eventSignal":EventType.PlayAudioSignal, "eventSender":EventType.PlayAudioSender }
+                                ]
+        
         self.scheduler = BackgroundScheduler()
         
     def initLogger(self):
@@ -99,25 +103,20 @@ class Scheduler:
         
     def printLeftEyeGaze(self, sender, eyeGaze): #, 
         try:
-            print "!!!!!!!!!!!!!!!!!!!!!!!!!!!", eyeGaze
             #SchedulerHelperMethods.printLeftGaze(eyeGaze)
             #self.scheduler.add_job("SchedulerHelperMethods:printLeftGaze", args=[eyeGaze]) #possible to give the function moduleName:functionName
             self.scheduler.add_job(SchedulerHelperMethods.printLeftGaze, args=[eyeGaze])
-            print "@@@@@@@@@@@@@@"
         except Exception,e:
             print e.message
             
     def playSound(self, sender, fileName):
         try:
-            print "!!!!!!!!!!!!!!!!!!!!!!!!!!!", fileName
             SchedulerHelperMethods.playSound(self.logger, fileName)
-            #SchedulerHelperMethods.playSound(self.logger, fileName)
         except Exception,e:
             print e.message
             
     def openPopupWindow(self, sender, frame):
         try:
-            print "pop up window @@@@@@@@@@"
             SchedulerHelperMethods.popupWindow(frame)
         except Exception,e:
             print e.message

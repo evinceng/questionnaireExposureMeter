@@ -15,6 +15,9 @@ import EnableCors
 import threading
 import StoppableWSGIRefServer
 import config
+from pydispatch import dispatcher
+import SchedulerHelperMethods
+from EventType import EventType
 
 class Controller():
     """Class establishing communication between user interface(view) and model.
@@ -35,6 +38,15 @@ class Controller():
         self.view.sidePanel.stopButton.bind("<Button>",self.stop)
         self.view.mainPanel.userNameVar.trace("w", self.updateStartButtonState)
         self.root.after(2000, self.root.focus_force)
+        #connects OpenQuestSignal to openQuestionnaire method through dispatcher
+        dispatcher.connect(self.openQuestionnaire, signal=EventType.OpenQuestSignal, sender=EventType.OpenQuestSender)
+        #connects PlayAudioAndOpenQuestSignal to playAudioAndOpenQuestionnaire method through dispatcher
+        dispatcher.connect(self.playAudioAndOpenQuestionnaire, signal=EventType.PlayAudioAndOpenQuestSignal, sender=EventType.PlayAudioAndOpenQuestSender)
+        #since the questionnaire can not be opened form dispatcher(another thread) '<<pingOpenQuestionnaire>>' is binded to self.pingOpenQuestionnaire method
+        self.root.bind('<<pingOpenQuestionnaire>>', self.pingOpenQuestionnaire)
+        #since the questionnaire can not be opened form dispatcher(another thread) '<<pingPlayAudioAndOpenQuestionnaire>>' is binded to self.pingPlayAudioAndOpenQuestionnaire method
+        self.root.bind('<<pingPlayAudioAndOpenQuestionnaire>>', self.pingPlayAudioAndOpenQuestionnaire)
+        
         #first benchmark commented out
 #        self.view.mainPanel.slider.bind("<B1-Motion>", self.calculateVal)
 #        self.view.mainPanel.progressbar["maximum"] = self.model.progressBarMaxVal
@@ -112,6 +124,36 @@ class Controller():
             self.view.sidePanel.startButton.config(state="normal")
         else:
             self.view.sidePanel.startButton.config(state="disabled")
+    
+    def openQuestionnaire(self, questTitle, questFileName):
+        """
+        Receives openquestionnaire event and generates ping event for tkinter to be able to pop up questionnaire window
+        """
+        self.questTitle = questTitle
+        self.questFileName = questFileName
+        self.root.event_generate('<<pingOpenQuestionnaire>>', when='tail')
+        
+    def pingOpenQuestionnaire(self, event):
+        """
+        After OpenQuestSignal received and ping event generated, event is catched here and opened as a pop up window
+        """
+        SchedulerHelperMethods.openQuestionnaire(self.root, self.questTitle, self.questFileName)
+        
+    def playAudioAndOpenQuestionnaire(self, audioFileName, questTitlePAO, questFileNamePAO):
+        """
+        Receives playAudioAndopenquestionnaire event and generates ping event for playing sound and tkinter to be able to  pop up questionnaire window
+        """
+        self.questTitlePAO = questTitlePAO
+        self.questFileNamePAO = questFileNamePAO
+        self.audioFileName = audioFileName
+        self.root.event_generate('<<pingPlayAudioAndOpenQuestionnaire>>', when='tail')
+        
+    def pingPlayAudioAndOpenQuestionnaire(self, event):
+        """
+        After PlaySoundAndOpenQuestSignal received and ping event generated, event is catched here SchedulerHelperMethods method is called
+        """
+        SchedulerHelperMethods.playSoundAndOpenQuestionnaire(self.audioFileName, self.questTitlePAO, self.questFileNamePAO)
+        
 #first benchmark commented out
 #    def calculateVal(self,event):
 #        currentVal = self.view.mainPanel.slider.get()

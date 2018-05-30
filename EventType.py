@@ -10,5 +10,9 @@ class EventType:
     PlayAudioSender = 1
     EyeGazeGTTSignal = 2#"eyeGaze_greater_than_21"
     EyeGazeSender = 3 #"sensor_eyeGaze_sender"
-    OpenQuestionnaireSignal = 4
-    OpenQuestionnaireSender = 5
+    OpenQuestSignal = 4
+    OpenQuestSender = 5
+    PlayAudioAndOpenQuestSignal = 6
+    PlayAudioAndOpenQuestSender = 7
+    PrintMessageSignal = 8
+    PrintMessageSender = 9
