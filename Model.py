@@ -14,6 +14,7 @@ from datetime import datetime
 import Scheduler
 from pydispatch import dispatcher
 from EventType import EventType
+import Database
 
 class Model():
     """ Class including the main data and their operations of the multimedia exposure meter app
@@ -61,6 +62,9 @@ class Model():
         Session start time is set and the sensors are started for listening the ports
         """
         startTime = datetime.now()
+        #create Database userPropsDict once
+        Database.userPropsDict = Database.createUserPropsDict(userName, startTime)
+        
         ################################################################################
         #Start the scheduler here
         ################################################################################
@@ -68,9 +72,7 @@ class Model():
         self.scheduler.startScheduler()
         
         #start time should be set before starting listening the port
-        self.tobiiSensor.setUserName(userName)
         self.tobiiSensor.setSessionStartTime(startTime)
-        self.tobiiSensor.setScheduler(self.scheduler)
         self.tobiiEyeTracker.startListening()
         
         

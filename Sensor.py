@@ -9,15 +9,9 @@ Created on Tue Apr 10 16:05:35 2018
 """
 import json
 from bottle import response
-from datetime import datetime
 import socket
 import config
 import sys
-from pymongo import MongoClient
-from pymongo.errors import ConnectionFailure
-from dateutil.tz import tzlocal
-from collections import OrderedDict
-from apscheduler.schedulers.background import BackgroundScheduler
 from pydispatch import dispatcher
 from EventType import EventType
 import traceback
@@ -41,24 +35,12 @@ class Sensor():
         self.configSectionName = configSectionName
         self.halt = 0
         self.__receivedEventCounter = 0
-        
-    def setUserName(self, userName):
-        """
-        The userName is set when the start button is pressed
-        """
-        self.userName = userName
-        
+#        
     def setSessionStartTime(self, startTime):
         """
         The start time of the experiment is set when the start button is pressed
         """
         self.sessionStartTime = startTime
-        
-    def setScheduler(self, scheduler):
-        """
-        The scheduler is set
-        """
-        self.scheduler = scheduler
         
     def listenSocketFromDotNET(self):
         """
@@ -80,7 +62,6 @@ class Sensor():
 #                print self.sessionStartTime
 #                print "sessionstarttime is ###############"
                 
-                self.userPropsDict = self.createUserPropsDict()
                 __timeStamp = self.sessionStartTime.strftime('%Y-%m-%d_%H%M%S')
                 self.logFileName = self.configSectionName + "Log_" + __timeStamp + ".log"
                 
@@ -189,15 +170,9 @@ class Sensor():
         
         #if abs(shapedDataDict["leftGaze:y"]) > 21:
             #dispatcher.send(EventType.PlayAudioSignal, EventType.PlayAudioSender, "media/second.mp3")
-        
-        #calculate relative time since the start of the session
-        diff = shapedDataDict["timeStamp"] - self.userPropsDict["sessionStartTime"]
-        self.userPropsDict["relativeTime"] = diff.total_seconds()
-        
-        #add user nd session related info infront of the sensor info
-        concatedDict = OrderedDict(list(self.userPropsDict.items()) + list(shapedDataDict.items()))
+            
         #save to DB
-        Database.saveToDB(self.configSectionName, concatedDict)
+        Database.saveToDB(self.configSectionName, shapedDataDict)
        
 #    def printByScheduler(self, eyeGaze):
 #        print "################################################################################"
@@ -220,24 +195,4 @@ class Sensor():
         Each sensor should extend this class and implement this method separately
         """
         raise NotImplementedError("The prepareDataForDB method should be overridden by every new sensor class inheriting Sensor class!")
-        
-    def createUserPropsDict(self):
-        """
-        Creates the user info dictionary
-        """
-        userPropsArr = []
-        userPropsArr.append(("userName",self.userName))
-        userPropsArr.append(("sessionStartTime", self.sessionStartTime))
-
-#        from tzlocal import get_localzone
-#        local_tz_name = get_localzone()
-        
-        local_tz_name = datetime.now(tzlocal()).tzname()
-        userPropsArr.append(("timeZoneName", local_tz_name))
-        
-        userPropsArr.append(("sessionID", self.userName + str(self.sessionStartTime)))
-        
-        userPropsArr.append(("relativeTime", 0))
-        
-        return OrderedDict(userPropsArr)
-            
+         

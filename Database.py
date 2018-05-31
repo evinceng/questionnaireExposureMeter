@@ -8,10 +8,19 @@ from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure
 import config
 import sys
+from datetime import datetime
+from dateutil.tz import tzlocal
+from collections import OrderedDict
 
+"""
+user properties dictionary like username session start time timezone etc..
+"""
+userPropsDict = {}
+    
 """
 Initializes mongoDB connection
 """
+
 dbSectionName = "MONGODB"
 __host = config.getConfig().get(dbSectionName, "Host")
 __port = config.getConfig().getint(dbSectionName, "Port")
@@ -22,13 +31,47 @@ except ConnectionFailure, e:
     sys.exit(1)
     
 dbhost = client[config.getConfig().get(dbSectionName, "DBName")]
-#self.userCollection = dbhost[config.getConfig().get(dbSectionName, "UserCollection")]
-#self.sensorCollection = dbhost[config.getConfig().get(self.configSectionName, "DBCollectionName")]
-    
-def saveToDB(configSectionName, data):
+
+
+def createUserPropsDict(userName, sessionStartTime):
+    """
+    Creates the user info dictionary
+    """
+    userPropsArr = []
+    userPropsArr.append(("userName", userName))
+    userPropsArr.append(("sessionStartTime", sessionStartTime))
+
+#   from tzlocal import get_localzone
+#   local_tz_name = get_localzone()
+        
+    local_tz_name = datetime.now(tzlocal()).tzname()
+    userPropsArr.append(("timeZoneName", local_tz_name))
+        
+    userPropsArr.append(("sessionID", userName + str(sessionStartTime)))
+        
+    userPropsArr.append(("relativeTime", 0))
+        
+    return OrderedDict(userPropsArr)
+
+def saveToDB(configSectionName, dataDict):
     """
     saves data to the collection in configSectionName section in the config.ini file.
     """
+    if not userPropsDict:
+        raise Exception("Please set username, sessionstarttime and userpropsdict in Model.py")
+    #calculate relative time since the start of the session
+    diff = dataDict["timeStamp"] - userPropsDict["sessionStartTime"]
+    userPropsDict["relativeTime"] = diff.total_seconds()
+        
+    #add user nd session related info infront of the sensor info
+    concatedDict = OrderedDict(list(userPropsDict.items()) + list(dataDict.items()))
+        
     collection = dbhost[config.getConfig().get(configSectionName, "DBCollectionName")]
     #save to DB
-    collection.insert_one(data)
+    collection.insert_one(concatedDict)
+
+
+
+
+
+   
