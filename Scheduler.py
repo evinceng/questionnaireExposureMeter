@@ -7,12 +7,13 @@ Created on Tue May 22 11:55:46 2018
 
 import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
-#import mp3play
 import os, sys
-import SchedulerHelperMethods
 import logging
 from pydispatch import dispatcher
 from EventType import EventType
+import json
+from collections import OrderedDict
+import ActionUnit
 
 class Scheduler:
     """
@@ -22,23 +23,10 @@ class Scheduler:
     def __init__(self):
         #self.masterFrame = masterFrame
         self.initLogger()
-        self.timeActionUnit = [
-                               {"time":1, "function":self.printText, "args":[self.logger, "first"]},
-                               #{"time":3, "function":SchedulerHelperMethods.playSound, "args":[self.logger, "media/first.mp3"]},
-                               {"time":2, "function":SchedulerHelperMethods.playSoundAndOpenQuestionnaire, "args":["media/preQuestionnaire.ogg", "Pre Questionnaire", "questionnaire/pre_questions.csv"]},
-                               #{"time":5, "function":SchedulerHelperMethods.playSound, "args":[self.logger, "media/second.mp3"]},
-                               {"time":6, "function":self.printText, "args":[self.logger, "second"]}]
+        self.timeActionUnit = ActionUnit.timeActionUnit
+        self.eventActionUnit = ActionUnit.eventActionUnit
         
-        #here is just usage info, relevant send script whereever your conditions are endured
-        self.questionnaireActionUnit = [{"example":'dispatcher.send(EventType.PlayAudioAndOpenQuestSignal, EventType.PlayAudioAndOpenQuestSender, "media/postQuestionnaire.ogg", "Post Questionnaire", "questionnaire/post_questions.csv")',
-                                         "example2":'dispatcher.send(EventType.OpenQuestSignal, EventType.OpenQuestSender, "Pre Questionnaire", "questionnaire/pre_questions.csv")'}] 
-
-        
-        self.eventActionUnit = [{"function":SchedulerHelperMethods.printMessege, "eventSignal":EventType.PrintMessageSignal, "eventSender":EventType.PrintMessageSender },
-                                #{"function":self.printLeftEyeGaze, "eventSignal":EventType.EyeGazeGTTSignal, "eventSender":EventType.EyeGazeSender },
-                                #{"function":self.playSound, "eventSignal":EventType.PlayAudioSignal, "eventSender":EventType.PlayAudioSender }
-                                ]
-        
+        #self.readActionUnit("actionUnit.txt")
         self.scheduler = BackgroundScheduler()
         
     def initLogger(self):
@@ -62,12 +50,14 @@ class Scheduler:
         #this should be here so as to have sessioStartTime to name the log file
         self.addFileHandlerToLogger()
         
+        #add jobs to scheduler at exact times starting from session start
         for action in self.timeActionUnit:
             actionTime = self.sessionStartTime + datetime.timedelta(seconds=action["time"])
             self.scheduler.add_job(action["function"], 'date', run_date=actionTime, args=action["args"])
         
+        #connect eventsignals to defined methods. In methods you can either execute through scheduler.add_job(preffered) or call them directly.
+        #see below printLeftEyeGaze method for how to use use
         for action in self.eventActionUnit:
-            #self.scheduler.add_job(action["function"], 'date', run_date=eventActionDummyTime, args=action["args"])
             dispatcher.connect(action["function"], signal=action["eventSignal"], sender=action["eventSender"])
         
         self.logger.info("Session start time is " + str(self.sessionStartTime))
@@ -94,31 +84,56 @@ class Scheduler:
             handler.close()
             self.logger.removeHandler(handler)
         logging.shutdown()
-        
-    def printText(self, logger, text):
-        print "################################################################################"
-        print "I am a text: ", text, datetime.datetime.now()
-        print "################################################################################"
-        logger.info("I am a text: %s %s" % (text, str(datetime.datetime.now())))
-        
-    def printLeftEyeGaze(self, sender, eyeGaze): #, 
-        try:
-            #SchedulerHelperMethods.printLeftGaze(eyeGaze)
-            #self.scheduler.add_job("SchedulerHelperMethods:printLeftGaze", args=[eyeGaze]) #possible to give the function moduleName:functionName
-            self.scheduler.add_job(SchedulerHelperMethods.printLeftGaze, args=[eyeGaze])
-        except Exception,e:
-            print e.message
-            
-    def playSound(self, sender, fileName):
-        try:
-            SchedulerHelperMethods.playSound(self.logger, fileName)
-        except Exception,e:
-            print e.message
-            
-    def openPopupWindow(self, sender, frame):
-        try:
-            SchedulerHelperMethods.popupWindow(frame)
-        except Exception,e:
-            print e.message
+    
+#    def readActionUnit(self, fileName):
+#        self.timeActionUnit=[]
+#        self.eventActionUnit=[]
+#        isTimeActionList = None
+#        with open(fileName, "r") as file:
+#            for line in file:
+#                line = line.strip()
+#                print line
+#                print "!!!!!!!!!!!"
+#                if line.startswith('#') or (not line):
+#                    continue
+#                elif line == "timeActionUnit:":
+#                    isTimeActionList = True
+#                elif line == "eventActionUnit:":
+#                    isTimeActionList = False
+#                else:
+#                    dataDict = json.loads(line, object_pairs_hook=OrderedDict)
+#                    if isTimeActionList:
+#                        self.timeActionUnit.append(dataDict)
+#                    else:
+#                        self.eventActionUnit.append(dataDict)
+#        print self.timeActionUnit
+#        print "@@@@@@@@@@@"
+#        print self.eventActionUnit
+    
+#    def printText(self, text):
+#        print "################################################################################"
+#        print "I am a text: ", text, datetime.datetime.now()
+#        print "################################################################################"
+#        self.logger.info("I am a text: %s %s" % (text, str(datetime.datetime.now())))
+#        
+#    def printLeftEyeGaze(self, sender, eyeGaze): #, 
+#        try:
+#            #SchedulerHelperMethods.printLeftGaze(eyeGaze)
+#            #self.scheduler.add_job("SchedulerHelperMethods:printLeftGaze", args=[eyeGaze]) #possible to give the function moduleName:functionName
+#            self.scheduler.add_job(SchedulerHelperMethods.printLeftGaze, args=[eyeGaze])
+#        except Exception,e:
+#            print e.message
+#            
+#    def playSound(self, sender, fileName):
+#        try:
+#            SchedulerHelperMethods.playSound(self.logger, fileName)
+#        except Exception,e:
+#            print e.message
+#            
+#    def openPopupWindow(self, sender, frame):
+#        try:
+#            SchedulerHelperMethods.popupWindow(frame)
+#        except Exception,e:
+#            print e.message
             
             

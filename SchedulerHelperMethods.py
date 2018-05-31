@@ -30,7 +30,7 @@ def playSound(fileName): #logger,
     mixer.music.play()
     logMessage("Sound file named : %s played at %s" % (filePath, str(datetime.datetime.now())))
 
-def printMessege(message):
+def printMessage(message):
     print "::::::::::::::::::::::::::::::::::"
     print "Message is ", message
     print "::::::::::::::::::::::::::::::::::"

@@ -1,0 +1,12 @@
+#Not used right now------------------------------------------------------------
+timeActionUnit:
+{"time":1, "function":SchedulerHelperMethods.printMessage, "args":["first"]}
+{"time":2, "function":SchedulerHelperMethods.playSoundAndOpenQuestionnaire, "args":["media/preQuestionnaire.ogg", "Pre Questionnaire", "questionnaire/pre_questions.csv"]}
+{"time":6, "function":SchedulerHelperMethods.printMessage, "args":["second"]}
+
+eventActionUnit:
+{"function":SchedulerHelperMethods.printMessage, "eventSignal":EventType.PrintMessageSignal, "eventSender":EventType.PrintMessageSender }
+
+#self.questionnaireActionUnit
+#{"example":'dispatcher.send(EventType.PlayAudioAndOpenQuestSignal, EventType.PlayAudioAndOpenQuestSender, "media/postQuestionnaire.ogg", "Post Questionnaire", "questionnaire/post_questions.csv")'}
+#{"example2":'dispatcher.send(EventType.OpenQuestSignal, EventType.OpenQuestSender, "Pre Questionnaire", "questionnaire/pre_questions.csv")'}
