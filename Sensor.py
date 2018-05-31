@@ -21,6 +21,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from pydispatch import dispatcher
 from EventType import EventType
 import traceback
+import Database
 
 class Sensor():
     """
@@ -40,7 +41,6 @@ class Sensor():
         self.configSectionName = configSectionName
         self.halt = 0
         self.__receivedEventCounter = 0
-        self.__initDBConnection()
         
     def setUserName(self, userName):
         """
@@ -163,23 +163,6 @@ class Sensor():
         # Listen for incoming connections
         sock.listen(1)
         return sock
-    
-    def __initDBConnection(self):
-        """
-        Initializes mongoDB connection
-        """
-        dbSectionName = "MONGODB"
-        __host = config.getConfig().get(dbSectionName, "Host")
-        __port = config.getConfig().getint(dbSectionName, "Port")
-        try: 
-            client = MongoClient(host=__host, port=__port)
-        except ConnectionFailure, e:
-            sys.stderr.write("Could not connect to MongoDB: %s" % e)
-            sys.exit(1)
-            
-        dbhost = client[config.getConfig().get(dbSectionName, "DBName")]
-        #self.userCollection = dbhost[config.getConfig().get(dbSectionName, "UserCollection")]
-        self.sensorCollection = dbhost[config.getConfig().get(self.configSectionName, "DBCollectionName")]
          
     def __writeToFile(self, data, mode):
         """ 
@@ -214,7 +197,7 @@ class Sensor():
         #add user nd session related info infront of the sensor info
         concatedDict = OrderedDict(list(self.userPropsDict.items()) + list(shapedDataDict.items()))
         #save to DB
-        self.sensorCollection.insert_one(concatedDict)
+        Database.saveToDB(self.configSectionName, concatedDict)
        
 #    def printByScheduler(self, eyeGaze):
 #        print "################################################################################"
