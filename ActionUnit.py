@@ -19,9 +19,9 @@ timeActionUnit = [
         {"time":1, "function":SchedulerHelperMethods.printMessage, "args":["first"]},
         #{"time":1, "function":self.printText, "args":[self.logger, "first"]},
         #{"time":3, "function":SchedulerHelperMethods.playSound, "args":[self.logger, "media/first.mp3"]},
-        {"time":2, "function":SchedulerHelperMethods.playSoundAndOpenQuestionnaire, "args":["media/preQuestionnaire.ogg", "Pre Questionnaire", "questionnaire/pre_questions.csv"]},
+        {"time":1.2, "function":SchedulerHelperMethods.playSoundAndOpenQuestionnaire, "args":["media/preQuestionnaire.ogg", "Pre Questionnaire", "questionnaire/pre_questions.csv"]},
         #{"time":5, "function":SchedulerHelperMethods.playSound, "args":[self.logger, "media/second.mp3"]},
-        {"time":6, "function":SchedulerHelperMethods.printMessage, "args":["second"]},
+        {"time":3, "function":SchedulerHelperMethods.printMessage, "args":["second"]},
         ]
         
 """      
