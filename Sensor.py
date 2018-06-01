@@ -16,6 +16,7 @@ from pydispatch import dispatcher
 from EventType import EventType
 import traceback
 import Database
+from QuestionnaireType import QuestionnaireType
 
 class Sensor():
     """
@@ -103,7 +104,7 @@ class Sensor():
         finally: 
             self.sock.close()
             print "Finished server socket for incomming ", self.configSectionName, " data thread"
-            dispatcher.send(EventType.PlayAudioAndOpenQuestSignal, EventType.PlayAudioAndOpenQuestSender, "media/postQuestionnaire.ogg", "Post Questionnaire", "questionnaire/post_questions.csv")
+            dispatcher.send(EventType.PlayAudioAndOpenQuestSignal, EventType.PlayAudioAndOpenQuestSender, "media/postQuestionnaire.ogg", "Post Questionnaire", QuestionnaireType.PostQuest, "questionnaire/post_questions.csv")
             
         print "Leaving listening method of ", self.configSectionName
     

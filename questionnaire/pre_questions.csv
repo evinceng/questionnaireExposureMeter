@@ -1,4 +1,4 @@
-Type;Question;Answer;Required
+type;questionText;possibleAnswer;required
 textInput;What is your favourite movie?;None;1
 radioButton;How is the room temperature?;"(1, ""cold""), (2, ""cool""), (3, ""mild""), (4, ""warm""), (5, ""hot"")";1
 scale;How happy are you currently?;None;0

@@ -53,7 +53,7 @@ def createUserPropsDict(userName, sessionStartTime):
         
     return OrderedDict(userPropsArr)
 
-def saveToDB(configSectionName, dataDict):
+def saveToDB(configSectionName, dataDict, collectionName="DBCollectionName"):
     """
     saves data to the collection in configSectionName section in the config.ini file.
     """
@@ -66,7 +66,7 @@ def saveToDB(configSectionName, dataDict):
     #add user nd session related info infront of the sensor info
     concatedDict = OrderedDict(list(userPropsDict.items()) + list(dataDict.items()))
         
-    collection = dbhost[config.getConfig().get(configSectionName, "DBCollectionName")]
+    collection = dbhost[config.getConfig().get(configSectionName, collectionName)]
     #save to DB
     collection.insert_one(concatedDict)
 

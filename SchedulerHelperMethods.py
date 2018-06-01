@@ -35,22 +35,22 @@ def printMessage(message):
     print "Message is ", message
     print "::::::::::::::::::::::::::::::::::"
 
-def openQuestionnaire(masterFrame, title, questionFileName):
+def openQuestionnaire(masterFrame, title, questType, questionFileName):
     """
     open the questionnaire window with params 
     """
     filePath = getAbsPath(questionFileName)
-    questionnaire = Questionnaire.Questionnaire(masterFrame, title, filePath)
+    questionnaire = Questionnaire.Questionnaire(masterFrame, title, questType, filePath)
     questionnaire.run()
     logMessage("Questionnaire file named : %s opened at %s" % (questionFileName, str(datetime.datetime.now())))
         
-def playSoundAndOpenQuestionnaire(soundFileName, questTitle, questFileName):
+def playSoundAndOpenQuestionnaire(soundFileName, questTitle, questType, questFileName):
     """
     Sound is played and dispatcher send the signal to open the questionnaire
     """
     playSound(soundFileName)
     #move this line to whenever you want to open popup window
-    dispatcher.send(EventType.OpenQuestSignal, EventType.OpenQuestSender, questTitle, questFileName)
+    dispatcher.send(EventType.OpenQuestSignal, EventType.OpenQuestSender, questTitle, questType, questFileName)
     logMessage("Open questionnaire  %s event sent: %s" % (questFileName, str(datetime.datetime.now())))
 
 def logMessage(message):

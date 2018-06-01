@@ -6,6 +6,7 @@ Created on Thu May 31 09:13:52 2018
 """
 import SchedulerHelperMethods
 from EventType import EventType
+from QuestionnaireType import QuestionnaireType
 
 """
 Action units that will be executed throught the exposure meter session
@@ -19,7 +20,7 @@ timeActionUnit = [
         {"time":1, "function":SchedulerHelperMethods.printMessage, "args":["first"]},
         #{"time":1, "function":self.printText, "args":[self.logger, "first"]},
         #{"time":3, "function":SchedulerHelperMethods.playSound, "args":[self.logger, "media/first.mp3"]},
-        {"time":1.2, "function":SchedulerHelperMethods.playSoundAndOpenQuestionnaire, "args":["media/preQuestionnaire.ogg", "Pre Questionnaire", "questionnaire/pre_questions.csv"]},
+        {"time":1.2, "function":SchedulerHelperMethods.playSoundAndOpenQuestionnaire, "args":["media/preQuestionnaire.ogg", "Pre Questionnaire", QuestionnaireType.PreQuest,"questionnaire/pre_questions.csv"]},
         #{"time":5, "function":SchedulerHelperMethods.playSound, "args":[self.logger, "media/second.mp3"]},
         {"time":3, "function":SchedulerHelperMethods.printMessage, "args":["second"]},
         ]
@@ -39,7 +40,7 @@ eventActionUnit = [
 here is just usage info, you have to put relevant dispatcher.send script (example shown below) whereever your conditions are ensured (think it like creating an event)
 """
 questionnaireActionUnit = [
-        {"example":'dispatcher.send(EventType.PlayAudioAndOpenQuestSignal, EventType.PlayAudioAndOpenQuestSender, "media/postQuestionnaire.ogg", "Post Questionnaire", "questionnaire/post_questions.csv")'},
+        {"example":'dispatcher.send(EventType.PlayAudioAndOpenQuestSignal, EventType.PlayAudioAndOpenQuestSender, "media/postQuestionnaire.ogg", "Post Questionnaire", QuestionnaireType.PostQuest, "questionnaire/post_questions.csv")'},
          {"example2":'dispatcher.send(EventType.OpenQuestSignal, EventType.OpenQuestSender, "Pre Questionnaire", "questionnaire/pre_questions.csv")'}] 
 
 

@@ -125,11 +125,12 @@ class Controller():
         else:
             self.view.sidePanel.startButton.config(state="disabled")
     
-    def openQuestionnaire(self, questTitle, questFileName):
+    def openQuestionnaire(self, questTitle, questType, questFileName):
         """
         Receives openquestionnaire event and generates ping event for tkinter to be able to pop up questionnaire window
         """
         self.questTitle = questTitle
+        self.questType = questType
         self.questFileName = questFileName
         self.root.event_generate('<<pingOpenQuestionnaire>>', when='tail')
         
@@ -137,13 +138,14 @@ class Controller():
         """
         After OpenQuestSignal received and ping event generated, event is catched here and opened as a pop up window
         """
-        SchedulerHelperMethods.openQuestionnaire(self.root, self.questTitle, self.questFileName)
+        SchedulerHelperMethods.openQuestionnaire(self.root, self.questTitle, self.questType, self.questFileName)
         
-    def playAudioAndOpenQuestionnaire(self, audioFileName, questTitlePAO, questFileNamePAO):
+    def playAudioAndOpenQuestionnaire(self, audioFileName, questTitlePAO, questTypePAO, questFileNamePAO):
         """
         Receives playAudioAndopenquestionnaire event and generates ping event for playing sound and tkinter to be able to  pop up questionnaire window
         """
         self.questTitlePAO = questTitlePAO
+        self.questTypePAO = questTypePAO
         self.questFileNamePAO = questFileNamePAO
         self.audioFileName = audioFileName
         self.root.event_generate('<<pingPlayAudioAndOpenQuestionnaire>>', when='tail')
@@ -152,7 +154,7 @@ class Controller():
         """
         After PlaySoundAndOpenQuestSignal received and ping event generated, event is catched here SchedulerHelperMethods method is called
         """
-        SchedulerHelperMethods.playSoundAndOpenQuestionnaire(self.audioFileName, self.questTitlePAO, self.questFileNamePAO)
+        SchedulerHelperMethods.playSoundAndOpenQuestionnaire(self.audioFileName, self.questTitlePAO, self.questType, self.questFileNamePAO)
         
 #first benchmark commented out
 #    def calculateVal(self,event):

@@ -19,7 +19,8 @@ class csvReader:
         with open(self.filepath, "rb") as f_read:
             reader = csv.reader(f_read, delimiter=self.delimiter)
             # skip first line which is a header
-            next(reader, None)
+            self.questionnaireConf = next(reader, None)
+            print self.questionnaireConf
             # traverse lines and store
             for row in reader:
                 self.questionnaire.append(row)
@@ -35,3 +36,6 @@ class csvReader:
         self.load_csv()
         self.clean_questionnaire()
         return self.questionnaire
+    
+    def getQuestionnaireConf(self):
+        return self.questionnaireConf

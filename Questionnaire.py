@@ -7,17 +7,24 @@ Created on Fri May 25 11:21:49 2018
 """
 from Tkinter import *
 from tkinter import ttk
-import time
+from datetime import datetime
 from csvReader import csvReader
+from collections import OrderedDict
+import Database
+from QuestionnaireType import QuestionnaireType
+from itertools import groupby,izip
+import config
 
 class Questionnaire:
-
-    def __init__(self, masterFrame, title, questionFilePath):     
+    def __init__(self, masterFrame, title, questType, questionFilePath):        
+        self.dbSectionName ="QUESTIONNAIRE"
+        self.finalAnswersCollectionName = "FinalAnswersCollectionName"
         # load questions
         csr = csvReader(questionFilePath, ";")
         csr.make_questions()
         self.questions = csr.questionnaire
-        
+        self.questionnaireConf = csr.getQuestionnaireConf()
+        self.questType = questType
         self.initGUI(masterFrame, title)
         # create notebook
         self.add_start()
@@ -39,8 +46,8 @@ class Questionnaire:
 
         self.notebook = ttk.Notebook(self.root)
         # result
-        self.result = {}
-
+        self.result = []
+        self.dataDict = OrderedDict()
         # variables
         self.variables = {}
 
@@ -161,7 +168,11 @@ class Questionnaire:
     def start(self):
         """procedure at beginning of questionnaire"""
         # store starting time
-        self.result[time.time()] = "User started questionnaire"
+        #self.result["timeStamp"] = "User started questionnaire"
+        self.startTime = datetime.now() 
+        self.dataDict["timeStamp"] = self.startTime
+        self.dataDict["action"] = "QuestionnaireStarted"
+        self.saveDataDictToDB()
         # make widget inaccessible
         self.notebook.tab(self.notebook.select(), state="hidden")
         # move focus to next widget
@@ -176,7 +187,11 @@ class Questionnaire:
                     return True
                 else:
                     # if a user returns to this text entry (with back button), create new timestamp in dictionary
-                    self.result[time.time()] = [self.get_tab_name(), self.variables[self.pos].get()]
+                    #self.result[time.time()] = [self.get_tab_name(), self.variables[self.pos].get()]
+                    self.dataDict["timeStamp"] = datetime.now()
+                    self.dataDict["question"] = self.get_tab_name()
+                    self.dataDict["answer"] = self.variables[self.pos].get() #or position
+                    self.saveDataDictToDB()
             else:
                 if self.variables[self.pos].get() == 999:
                     return True
@@ -206,7 +221,11 @@ class Questionnaire:
             self.notebook.tab(current_page, state="hidden")
 
             # store timestamp
-            self.result[time.time()] = "User moved to page {}".format(current_page + 1)
+            self.dataDict["timeStamp"] = datetime.now()
+            self.dataDict["action"] = "MovedToPage"
+            self.dataDict["value"] = current_page + 1 #pageNumber
+            self.saveDataDictToDB()
+            #self.result[time.time()] = "User moved to page {}".format(current_page + 1)
 
             # get progress value and increment
             current_progress = self.progress["value"]
@@ -231,7 +250,11 @@ class Questionnaire:
             self.notebook.select(current_page - 1)
             self.notebook.tab(current_page, state="hidden")
             # store result
-            self.result[time.time()] = "User moved to page {}".format(current_page - 1)
+            #self.result[time.time()] = "User moved to page {}".format(current_page - 1)
+            self.dataDict["timeStamp"] = datetime.now()
+            self.dataDict["action"] = "MovedToPage"
+            self.dataDict["value"] = current_page - 1 #pageNumber
+            self.saveDataDictToDB()
             # get progress value
             current_progress = self.progress["value"]
             # decrease progress value
@@ -249,18 +272,32 @@ class Questionnaire:
 
     def finish(self):
         """finish procedure"""
-        self.result[time.time()] = "User completed questionnaire"
+        #self.result[time.time()] = "User completed questionnaire"
+        self.dataDict["timeStamp"] = datetime.now()
+        self.dataDict["action"] = "QuestionnaireCompleted"
+        self.saveDataDictToDB()
+        #compute the final answers and save to DB
+        self.computeAndSaveFinalAnswersToDB()
         self.root.destroy()
 
 
     def get_scale(self, curr_scale):
         """get values from slider"""
-        self.result[time.time()] = [self.get_tab_name(), curr_scale]
+        #self.result[time.time()] = [self.get_tab_name(), curr_scale]
+        self.dataDict["timeStamp"] = datetime.now()
+        self.dataDict["action"] = "SliderMoved"
+        self.dataDict["question"] = self.get_tab_name()
+        self.dataDict["answer"] = curr_scale
+        self.saveDataDictToDB()
 
 
     def get_text(self, event=None):
         """get text value"""
-        self.result[time.time()] = [self.get_tab_name(), self.variables[self.pos].get()]
+        #self.result[time.time()] = [self.get_tab_name(), self.variables[self.pos].get()]
+        self.dataDict["timeStamp"] = datetime.now()
+        self.dataDict["action"] = "TextInput"
+        self.dataDict["question"] = self.get_tab_name()
+        self.dataDict["answer"] = self.variables[self.pos].get()
 
 
     def get_tab_name(self):
@@ -271,9 +308,50 @@ class Questionnaire:
 
     def get_left_click(self, event):
         x, y = event.x, event.y
-        self.result[time.time()] = ["Left Click Position", (x, y)]
+        #self.result[time.time()] = ["Left Click Position", (x, y)]
+        self.dataDict["timeStamp"] = datetime.now()
+        self.dataDict["action"] = "LeftClick"
+        self.dataDict["value:x"] = x
+        self.dataDict["value:y"] = y
+        self.saveDataDictToDB()
 
 
     def get_right_click(self, event):
         x, y = event.x, event.y
-        self.result[time.time()] = ["Right Click Position", (x, y)]
+        #self.result[time.time()] = ["Right Click Position", (x, y)]
+        self.dataDict["timeStamp"] = datetime.now()
+        self.dataDict["action"] = "RightClick"
+        self.dataDict["value:x"] = x
+        self.dataDict["value:y"] = y
+        self.saveDataDictToDB()
+    
+    def saveDataDictToDB(self):
+        """
+        saves local dataDict to db and clears it
+        """
+        self.dataDict["questionnaireType"] = self.questType
+        Database.saveToDB(self.dbSectionName, self.dataDict)
+        copDataDict = OrderedDict(self.dataDict)
+        self.result.append(copDataDict)
+        self.dataDict.clear()
+        
+    def computeAndSaveFinalAnswersToDB(self):
+        
+        #before closing the questionnaire filter the result dict for only questions
+        filteredResult = list(filter(lambda d: "question" in d, self.result))
+                
+        #before closing the questionnaire get the final answers for each question, whose relativeTime is max
+        finalQuestionAndAnswers = []
+        for key, group in groupby(filteredResult, lambda x: x["question"]): 
+            finalQuestionAndAnswers.append(max(group, key=lambda x:x["timeStamp"]))
+        
+        #['type', 'questionText', 'possibleAnswer', 'required']
+        #since two sets are ordered assign question description to questions                
+        for item,eachQuestion in izip(finalQuestionAndAnswers, self.questions):
+            for index in range(0, len(self.questionnaireConf)):
+                item[self.questionnaireConf[index]] = eachQuestion[index]
+                        
+        #change answer key to final answer in order not to be mixed with original data
+        for item in finalQuestionAndAnswers:
+            item["questionnaireType"] = self.questType
+            Database.saveToDB("QUESTIONNAIRE", item, self.finalAnswersCollectionName)
