@@ -20,7 +20,7 @@ class csvReader:
             reader = csv.reader(f_read, delimiter=self.delimiter)
             # skip first line which is a header
             self.questionnaireConf = next(reader, None)
-            print self.questionnaireConf
+            
             # traverse lines and store
             for row in reader:
                 self.questionnaire.append(row)

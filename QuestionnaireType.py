@@ -6,5 +6,5 @@ Created on Fri Jun 01 09:48:12 2018
 """
 
 class QuestionnaireType:
-    PreQuest = 0
-    PostQuest = 1
+    PreQuest = "pre"
+    PostQuest = "post"

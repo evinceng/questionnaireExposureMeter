@@ -181,21 +181,25 @@ class Questionnaire:
 
     def check_variable(self):
         """check if user has filled required fields"""
+        returnResult = False
         if int(self.questions[self.pos][-1]) == 1:
             if isinstance(self.variables[self.pos].get(), str):
                 if len(self.variables[self.pos].get()) == 0:
-                    return True
-                else:
+                    returnResult = True
+#                else:
                     # if a user returns to this text entry (with back button), create new timestamp in dictionary
                     #self.result[time.time()] = [self.get_tab_name(), self.variables[self.pos].get()]
-                    self.dataDict["timeStamp"] = datetime.now()
-                    self.dataDict["question"] = self.get_tab_name()
-                    self.dataDict["answer"] = self.variables[self.pos].get() #or position
-                    self.saveDataDictToDB()
+
             else:
                 if self.variables[self.pos].get() == 999:
-                    return True
-        return False
+                    returnResult = True
+                    
+        self.dataDict["timeStamp"] = datetime.now()
+        self.dataDict["question"] = self.get_tab_name()
+        self.dataDict["answer"] = self.variables[self.pos].get() #or position
+        self.saveDataDictToDB()
+        
+        return returnResult
 
     def post_warning(self, current_page, warningText):
         """place a warning to currently opened tab notebook tab"""
@@ -211,7 +215,7 @@ class Questionnaire:
         current_page = self.notebook.index(self.notebook.select())
 
         if self.check_variable():
-            self.post_warning(current_page, "I need an answer")
+            self.post_warning(current_page, "Please answer, the answer is required")
 
         else:
             # move to next page
@@ -287,7 +291,7 @@ class Questionnaire:
         self.dataDict["timeStamp"] = datetime.now()
         self.dataDict["action"] = "SliderMoved"
         self.dataDict["question"] = self.get_tab_name()
-        self.dataDict["answer"] = curr_scale
+        self.dataDict["answer"] = self.variables[self.pos].get()#curr_scale
         self.saveDataDictToDB()
 
 
@@ -298,6 +302,7 @@ class Questionnaire:
         self.dataDict["action"] = "TextInput"
         self.dataDict["question"] = self.get_tab_name()
         self.dataDict["answer"] = self.variables[self.pos].get()
+        self.saveDataDictToDB()
 
 
     def get_tab_name(self):

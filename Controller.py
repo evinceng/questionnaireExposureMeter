@@ -154,7 +154,7 @@ class Controller():
         """
         After PlaySoundAndOpenQuestSignal received and ping event generated, event is catched here SchedulerHelperMethods method is called
         """
-        SchedulerHelperMethods.playSoundAndOpenQuestionnaire(self.audioFileName, self.questTitlePAO, self.questType, self.questFileNamePAO)
+        SchedulerHelperMethods.playSoundAndOpenQuestionnaire(self.audioFileName, self.questTitlePAO, self.questTypePAO, self.questFileNamePAO)
         
 #first benchmark commented out
 #    def calculateVal(self,event):
