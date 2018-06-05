@@ -3,29 +3,48 @@
 Created on Wed Apr 04 13:12:21 2018
 
 @author: evin
+@brief: The user interface(GUI) of multimedia exposure meter app.
+        (View of MVC)
 """
 
 import Tkinter as Tk
-from matplotlib.figure import Figure
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import matplotlib.pyplot as plt
 
 class View():
+    """ The user interface(GUI) of multimedia exposure meter app.
+        (View of MVC)
+    """
+    
     def __init__(self, master):
         self.frame = Tk.Frame(master)
-        self.fig = plt.figure()
-        self.ax0 = self.fig.add_subplot(1,1,1)
         self.frame.pack(side=Tk.LEFT, fill=Tk.BOTH, expand=1)
-        self.sidepanel=SidePanel(master)
-        self.canvas = FigureCanvasTkAgg(self.fig, master=self.frame)
-        self.canvas.get_tk_widget().pack(side=Tk.TOP, fill=Tk.BOTH, expand=1)
-        self.canvas.show()
- 
-class SidePanel():
+        self.mainPanel = MainPanel(master)
+        self.sidePanel=SidePanel(master)
+
+class MainPanel():
+    """Class including visuals: entrys, labels, graphs, sliders etc.
+    
+    """
     def __init__(self, root):
-        self.frame2 = Tk.Frame( root )
-        self.frame2.pack(side=Tk.LEFT, fill=Tk.BOTH, expand=1)
-        self.plotBut = Tk.Button(self.frame2, text="Start ")
-        self.plotBut.pack(side="top",fill=Tk.BOTH)
-        self.clearButton = Tk.Button(self.frame2, text="Stop")
-        self.clearButton.pack(side="top",fill=Tk.BOTH)
+        self.initUserNameFrame(root) 
+        
+    def initUserNameFrame(self, root):
+        self.userNameVar = Tk.StringVar()
+        self.frame4 = Tk.Frame(root)
+        self.frame4.pack(side=Tk.LEFT, fill=Tk.BOTH, expand=1)
+        self.userNameLabel = Tk.Label(self.frame4, text="User Name:")
+        self.userNameLabel.pack(side=Tk.LEFT)
+        self.userNameEntry = Tk.Entry(self.frame4, width=11, textvariable=self.userNameVar)
+        self.userNameEntry.pack(side=Tk.RIGHT)     
+   
+        
+class SidePanel():
+    """Class managing the start and stop buttons.
+    
+    """
+    def __init__(self, root):
+        self.frame3 = Tk.Frame(root)
+        self.frame3.pack(side=Tk.RIGHT, fill=Tk.BOTH, expand=1)
+        self.startButton = Tk.Button(self.frame3, text="Start", state="disabled")
+        self.startButton.pack(side="top",fill=Tk.BOTH)
+        self.stopButton = Tk.Button(self.frame3, text="Stop", state="disabled")
+        self.stopButton.pack(side="top",fill=Tk.BOTH)

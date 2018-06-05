@@ -3,31 +3,151 @@
 Created on Wed Apr 04 13:13:48 2018
 
 @author: evin
+@brief: Class establishing communication between user interface(view) and model.
+       (Controller of MVC)
 """
 import Model
 import View
 import Tkinter as Tk
-import matplotlib.animation as animation
+from tkinter import messagebox
+import bottle
+import EnableCors
+import threading
+import StoppableWSGIRefServer
+import config
+from pydispatch import dispatcher
+import SchedulerHelperMethods
+from EventType import EventType
 
 class Controller():
+    """Class establishing communication between user interface(view) and model.
+       (Controller of MVC)
+    """
+
     def __init__(self):
+        """
+        Initializes the bottle server, creates Model and View part of the MVC,
+        and binds the start and stop button
+        """
+        self.initializeBottleServer()
         self.root = Tk.Tk()
+        self.root.protocol("WM_DELETE_WINDOW", self.onClosing)
         self.model=Model.Model()
         self.view=View.View(self.root)
-        self.view.sidepanel.plotBut.bind("<Button>",self.my_plot)
-        self.view.sidepanel.clearButton.bind("<Button>",self.clear)
-  
+        self.view.sidePanel.startButton.bind("<Button>",self.start)
+        self.view.sidePanel.stopButton.bind("<Button>",self.stop)
+        self.view.mainPanel.userNameVar.trace("w", self.updateStartButtonState)
+        self.root.after(2000, self.root.focus_force)
+        #connects OpenQuestSignal to openQuestionnaire method through dispatcher
+        dispatcher.connect(self.openQuestionnaire, signal=EventType.OpenQuestSignal, sender=EventType.OpenQuestSender)
+        #connects PlayAudioAndOpenQuestSignal to playAudioAndOpenQuestionnaire method through dispatcher
+        dispatcher.connect(self.playAudioAndOpenQuestionnaire, signal=EventType.PlayAudioAndOpenQuestSignal, sender=EventType.PlayAudioAndOpenQuestSender)
+        #since the questionnaire can not be opened form dispatcher(another thread) '<<pingOpenQuestionnaire>>' is binded to self.pingOpenQuestionnaire method
+        self.root.bind('<<pingOpenQuestionnaire>>', self.pingOpenQuestionnaire)
+        #since the questionnaire can not be opened form dispatcher(another thread) '<<pingPlayAudioAndOpenQuestionnaire>>' is binded to self.pingPlayAudioAndOpenQuestionnaire method
+        self.root.bind('<<pingPlayAudioAndOpenQuestionnaire>>', self.pingPlayAudioAndOpenQuestionnaire)
+        
     def run(self):
+        """
+        starts the user interface
+        """
         self.root.title("MVC")
         self.root.deiconify()
         self.root.mainloop()
-         
-    def clear(self,event):
-        self.view.ax0.clear()
-        self.view.fig.canvas.draw()
+        
+    def start(self,event):
+        """
+        Orginizes the start&stop buttons state and signals the model to start listening the sensors
+        """
+        #since bind does not work like command you have to check the state
+        if self.view.sidePanel.startButton["state"] == "normal":
+            self.view.sidePanel.startButton.config(state="disabled")
+            self.view.sidePanel.stopButton.config(state="normal")
+            self.model.start(self.view.mainPanel.userNameVar.get())
+        
+    def stop(self,event):
+        """
+        Changes the start&stop buttons state and signals the model to stop listening the sensors
+        """
+        #since bind does not work like command you have to check the state
+        if self.view.sidePanel.stopButton["state"] == "normal":
+            if self.view.mainPanel.userNameVar.get().strip():
+                self.view.sidePanel.startButton.config(state="normal")
+                
+            self.view.sidePanel.stopButton.config(state="disabled")
+            self.model.stop()
+        
+        
+    def onClosing(self):
+        """
+        A message box is showed to the user before closing the window and model is signaled
+        to stop listening the sensors and bottle server is stooped and window is destroyed
+        """
+        if messagebox.askokcancel("Quit", "Do you want to quit?"):
+            #if the button stop is already pushed don't call stop method again
+            state = str(self.view.sidePanel.stopButton["state"])
+            if state == "normal":
+                self.model.stop()
+            self.server.stop()
+            self.root.destroy()
+            
+    def initializeBottleServer(self):
+        """
+        Starts the bottle server
+        """
+        app = bottle.app()
+        app.install(EnableCors.EnableCors())
+        
+        __serverHostIP = config.getConfig().get("SERVER", "IP")
+        __serverHostPort = config.getConfig().getint("SERVER", "Port")
+        print "Starting http server on http://",__serverHostIP,':',__serverHostPort
+        
+        self.server = StoppableWSGIRefServer.StoppableWSGIRefServer(host=__serverHostIP, port=__serverHostPort)
+    
+        self.appThread = threading.Thread(target=app.run, kwargs=dict(server=self.server))
+        self.appThread.daemon = True
+        self.appThread.start()
+    
+    def updateStartButtonState(self, *_):
+        """
+        The start button is enabled if only username is provided
+        """
+        if (self.view.sidePanel.stopButton["state"] =="disabled" and self.view.mainPanel.userNameVar.get()):
+            self.view.sidePanel.startButton.config(state="normal")
+        else:
+            self.view.sidePanel.startButton.config(state="disabled")
+    
+    def openQuestionnaire(self, questTitle, questType, questFileName):
+        """
+        Receives openquestionnaire event and generates ping event for tkinter to be able to pop up questionnaire window
+        """
+        self.questTitle = questTitle
+        self.questType = questType
+        self.questFileName = questFileName
+        self.root.event_generate('<<pingOpenQuestionnaire>>', when='tail')
+        
+    def pingOpenQuestionnaire(self, event):
+        """
+        After OpenQuestSignal received and ping event generated, event is catched here and opened as a pop up window
+        """
+        SchedulerHelperMethods.openQuestionnaire(self.root, self.questTitle, self.questType, self.questFileName)
+        
+    def playAudioAndOpenQuestionnaire(self, audioFileName, questTitlePAO, questTypePAO, questFileNamePAO):
+        """
+        Receives playAudioAndopenquestionnaire event and generates ping event for playing sound and tkinter to be able to  pop up questionnaire window
+        """
+        self.questTitlePAO = questTitlePAO
+        self.questTypePAO = questTypePAO
+        self.questFileNamePAO = questFileNamePAO
+        self.audioFileName = audioFileName
+        self.root.event_generate('<<pingPlayAudioAndOpenQuestionnaire>>', when='tail')
+        
+    def pingPlayAudioAndOpenQuestionnaire(self, event):
+        """
+        After PlaySoundAndOpenQuestSignal received and ping event generated, event is catched here SchedulerHelperMethods method is called
+        """
+        SchedulerHelperMethods.playSoundAndOpenQuestionnaire(self.audioFileName, self.questTitlePAO, self.questTypePAO, self.questFileNamePAO)
+
+        
+        
   
-    def my_plot(self,event):
-        ani = animation.FuncAnimation(self.view.fig, self.model.calculate(), interval=1000)
-        self.view.ax0.clear()
-        self.view.ax0.plot(self.model.xs,self.model.ys)
-        self.view.fig.canvas.draw()

@@ -1,0 +1,12 @@
+Session start time is 2018-06-05 12:00:29.266000
+Scheduler started at 2018-06-05 12:00:29.313000
+Running job "playSoundAndOpenQuestionnaire (trigger: date[2018-06-05 12:00:29 CEST], next run at: 2018-06-05 12:00:29 CEST)" (scheduled at 2018-06-05 12:00:29.766000+02:00)
+Running job "printMessage (trigger: date[2018-06-05 12:00:30 CEST], next run at: 2018-06-05 12:00:30 CEST)" (scheduled at 2018-06-05 12:00:30.266000+02:00)
+Sound file named : C:\Users\evin\Documents\GitHub\mvc\media/preQuestionnaire.ogg played at 2018-06-05 12:00:30.279000
+Open questionnaire  questionnaire/pre_questions.csv event sent: 2018-06-05 12:00:30.279000
+Job "playSoundAndOpenQuestionnaire (trigger: date[2018-06-05 12:00:29 CEST], next run at: 2018-06-05 12:00:29 CEST)" executed successfully
+Job "printMessage (trigger: date[2018-06-05 12:00:30 CEST], next run at: 2018-06-05 12:00:30 CEST)" executed successfully
+Questionnaire file named : questionnaire/pre_questions.csv opened at 2018-06-05 12:00:30.314000
+Running job "printMessage (trigger: date[2018-06-05 12:00:32 CEST], next run at: 2018-06-05 12:00:32 CEST)" (scheduled at 2018-06-05 12:00:32.266000+02:00)
+Job "printMessage (trigger: date[2018-06-05 12:00:32 CEST], next run at: 2018-06-05 12:00:32 CEST)" executed successfully
+Scheduler stopped at 2018-06-05 12:01:47.238000
