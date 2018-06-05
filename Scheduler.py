@@ -11,7 +11,6 @@ import os, sys
 import logging
 from pydispatch import dispatcher
 from EventType import EventType
-import json
 from collections import OrderedDict
 import ActionUnit
 
@@ -84,7 +83,17 @@ class Scheduler:
             handler.close()
             self.logger.removeHandler(handler)
         logging.shutdown()
-    
+        
+      
+#    def printLeftEyeGaze(self, sender, eyeGaze):
+#        try:
+#            #SchedulerHelperMethods.printLeftGaze(eyeGaze)
+#            #self.scheduler.add_job("SchedulerHelperMethods:printLeftGaze", args=[eyeGaze]) #possible to give the function moduleName:functionName
+#            self.scheduler.add_job(SchedulerHelperMethods.printLeftGaze, args=[eyeGaze])
+#        except Exception,e:
+#            print e.message
+        
+        
 #    def readActionUnit(self, fileName):
 #        self.timeActionUnit=[]
 #        self.eventActionUnit=[]
@@ -115,14 +124,7 @@ class Scheduler:
 #        print "I am a text: ", text, datetime.datetime.now()
 #        print "################################################################################"
 #        self.logger.info("I am a text: %s %s" % (text, str(datetime.datetime.now())))
-#        
-#    def printLeftEyeGaze(self, sender, eyeGaze): #, 
-#        try:
-#            #SchedulerHelperMethods.printLeftGaze(eyeGaze)
-#            #self.scheduler.add_job("SchedulerHelperMethods:printLeftGaze", args=[eyeGaze]) #possible to give the function moduleName:functionName
-#            self.scheduler.add_job(SchedulerHelperMethods.printLeftGaze, args=[eyeGaze])
-#        except Exception,e:
-#            print e.message
+
 #            
 #    def playSound(self, sender, fileName):
 #        try:

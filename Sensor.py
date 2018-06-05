@@ -58,10 +58,6 @@ class Sensor():
                 
                 #dispatcher.send(EventType.EyeGazeGTTSignal, EventType.EyeGazeSender, 100000)
                 #dispatcher.send(EventType.PlayAudioSignal, EventType.PlayAudioSender, "media/second.mp3")
-#               
-#                print "sessionstarttime is ############"
-#                print self.sessionStartTime
-#                print "sessionstarttime is ###############"
                 
                 __timeStamp = self.sessionStartTime.strftime('%Y-%m-%d_%H%M%S')
                 self.logFileName = self.configSectionName + "Log_" + __timeStamp + ".log"
@@ -175,10 +171,6 @@ class Sensor():
         #save to DB
         Database.saveToDB(self.configSectionName, shapedDataDict)
        
-#    def printByScheduler(self, eyeGaze):
-#        print "################################################################################"
-#        print "Eyegaze greater than |12| that is ", eyeGaze
-#        print "################################################################################"
             
     def parseData(self, data):
         """

@@ -35,22 +35,7 @@ class MainPanel():
         self.userNameLabel.pack(side=Tk.LEFT)
         self.userNameEntry = Tk.Entry(self.frame4, width=11, textvariable=self.userNameVar)
         self.userNameEntry.pack(side=Tk.RIGHT)     
-        
-#first benchmark commented out
-#class MainPanel():
-#    """Class including the benchmark visuals: graphs, sliders etc.
-#    
-#    """
-#    def __init__(self, root):
-#        self.frame2 = Tk.Frame(root)
-#        self.frame2.pack(side=Tk.LEFT, fill=Tk.BOTH, expand=1)
-#        self.progressbar = ttk.Progressbar(self.frame2, length=200,
-#                                           mode="determinate")
-#        self.progressbar.pack()
-#        self.slider = Tk.Scale(self.frame2, from_ = 0, to_ = 1,
-#                               orient=Tk.HORIZONTAL, resolution = 0.001)
-#        
-#        self.slider.pack()        
+   
         
 class SidePanel():
     """Class managing the start and stop buttons.

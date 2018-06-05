@@ -13,7 +13,7 @@ from dateutil.tz import tzlocal
 from collections import OrderedDict
 
 """
-user properties dictionary like username session start time timezone etc..
+user properties dictionary like username, sessionID, start time, timezone etc..
 """
 userPropsDict = {}
     
@@ -55,7 +55,9 @@ def createUserPropsDict(userName, sessionStartTime):
 
 def saveToDB(configSectionName, dataDict, collectionName="DBCollectionName"):
     """
-    saves data to the collection in configSectionName section in the config.ini file.
+    saves data, by calculating relative time to session start time, to the collection 
+    in configSectionName section in the config.ini file.
+    The collection name will be "DBCollectionName" by default if not provided
     """
     if not userPropsDict:
         raise Exception("Please set username, sessionstarttime and userpropsdict in Model.py")

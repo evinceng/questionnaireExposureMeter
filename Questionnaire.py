@@ -5,6 +5,14 @@ Created on Fri May 25 11:21:49 2018
 @author: Nejc Kozjek
 
 """
+
+"""
+@arrangementAuthor: EvinA
+The class for opening a questionnaire pop up window with given inputs
+Please note that there are two sections in [QUESTIONNAIRE] header. DBCollectionName and FinalAnswersCollectionName
+In DBCollectionName every move of the user is saved to DB, like forwarding coming back etc.
+In FinalAnswersCollectionName the final answers to the questions are stored for easy using later for analysis
+"""
 from Tkinter import *
 from tkinter import ttk
 from datetime import datetime
@@ -13,7 +21,6 @@ from collections import OrderedDict
 import Database
 from QuestionnaireType import QuestionnaireType
 from itertools import groupby,izip
-import config
 
 class Questionnaire:
     def __init__(self, masterFrame, title, questType, questionFilePath):        
@@ -341,7 +348,9 @@ class Questionnaire:
         self.dataDict.clear()
         
     def computeAndSaveFinalAnswersToDB(self):
-        
+        """
+        Save final answers to the questions in the finalanswerscollection for easy using later for analysis
+        """
         #before closing the questionnaire filter the result dict for only questions
         filteredResult = list(filter(lambda d: "question" in d, self.result))
                 

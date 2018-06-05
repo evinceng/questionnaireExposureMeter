@@ -47,10 +47,6 @@ class Controller():
         #since the questionnaire can not be opened form dispatcher(another thread) '<<pingPlayAudioAndOpenQuestionnaire>>' is binded to self.pingPlayAudioAndOpenQuestionnaire method
         self.root.bind('<<pingPlayAudioAndOpenQuestionnaire>>', self.pingPlayAudioAndOpenQuestionnaire)
         
-        #first benchmark commented out
-#        self.view.mainPanel.slider.bind("<B1-Motion>", self.calculateVal)
-#        self.view.mainPanel.progressbar["maximum"] = self.model.progressBarMaxVal
-        
     def run(self):
         """
         starts the user interface
@@ -68,8 +64,6 @@ class Controller():
             self.view.sidePanel.startButton.config(state="disabled")
             self.view.sidePanel.stopButton.config(state="normal")
             self.model.start(self.view.mainPanel.userNameVar.get())
-        #first benchmark commented out
-#        self.clearSlider()
         
     def stop(self,event):
         """
@@ -82,8 +76,6 @@ class Controller():
                 
             self.view.sidePanel.stopButton.config(state="disabled")
             self.model.stop()
-            #first benchmark commented out
-#          self.clearSlider()
         
         
     def onClosing(self):
@@ -155,15 +147,7 @@ class Controller():
         After PlaySoundAndOpenQuestSignal received and ping event generated, event is catched here SchedulerHelperMethods method is called
         """
         SchedulerHelperMethods.playSoundAndOpenQuestionnaire(self.audioFileName, self.questTitlePAO, self.questTypePAO, self.questFileNamePAO)
-        
-#first benchmark commented out
-#    def calculateVal(self,event):
-#        currentVal = self.view.mainPanel.slider.get()
-#        modelVal = self.model.start(currentVal)
-#        self.view.mainPanel.progressbar["value"] = modelVal
-#        
-#    def clearSlider(self):
-#        self.view.mainPanel.progressbar["value"] = self.model.progressBarMinVal
+
         
         
   

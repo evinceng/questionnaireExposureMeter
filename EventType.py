@@ -6,6 +6,10 @@ Created on Fri May 25 16:02:38 2018
 """
 
 class EventType:
+    """
+    Both sender and signal event are defined here, please give distinct values to each item.
+    Note that yuo can provide the eventtypes in string format also as seen below: "eyeGaze_greater_than_21"
+    """
     PlayAudioSignal = 0
     PlayAudioSender = 1
     EyeGazeGTTSignal = 2#"eyeGaze_greater_than_21"

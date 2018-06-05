@@ -20,7 +20,7 @@ def getAbsPath(fileName):
     filePath = os.path.join(APP_FOLDER, fileName)
     return filePath
 
-def playSound(fileName): #logger, 
+def playSound(fileName):
     """
     plays the sound file where the relative path to the file is inputted
     """
@@ -54,6 +54,9 @@ def playSoundAndOpenQuestionnaire(soundFileName, questTitle, questType, questFil
     logMessage("Open questionnaire  %s event sent: %s" % (questFileName, str(datetime.datetime.now())))
 
 def logMessage(message):
+    """
+    Appends the message to the scheduler default logger
+    """
     logger = logging.getLogger('apscheduler.executors.default')
     if logger:
         logger.info(message)
